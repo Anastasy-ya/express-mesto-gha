@@ -22,7 +22,7 @@ const createCard = (req, res) => {
   res.status(201).send(newCard); // вернуть статус 201 и данные обратно на фронтенд
 };
 
-// // динамический роут этот не нужен
+// динамический роут
 // const getCardById = (req, res) => { // разобраться с повторным объявлением переменной id
 //   const { _id } = req.params; // в req.params.id будет введенный пользователем id в виде строки
 //   const card = cards.find((item) => item.id === Number(_id));
@@ -32,23 +32,23 @@ const createCard = (req, res) => {
 //   return res.status(404).send({ message: 'The card is not found' });
 // };
 
-// const deleteCardById = (req, res) => {
-//   console.log(req, res);
-// };
+const deleteCardById = (req, res) => {
+  console.log(req, res);
+};
 
-// const addLike = (req, res) => {
-//   console.log(req, res);
-// };
+const addLike = (req, res) => {
+  console.log(req, res);
+};
 
-// const removeLike = (req, res) => {
-//   console.log(req, res);
-// };
+const removeLike = (req, res) => {
+  console.log(req, res);
+};
 
 module.exports = {
   // getCardById,
   createCard,
   getCards,
-  // deleteCardById,
-  // addLike,
-  // removeLike,
+  deleteCardById,
+  addLike,
+  removeLike,
 };

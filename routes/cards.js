@@ -4,16 +4,16 @@ const {
   // getCardById,
   createCard,
   getCards,
-  // deleteCardById,
-  // addLike,
-  // removeLike,
+  deleteCardById,
+  addLike,
+  removeLike,
 } = require('../controllers/cards');
 
 router.get('/cards', getCards);
 router.post('/cards', createCard);
-// router.delete('/cards/:id', deleteCardById);
-// router.put('/cards/:id/likes', addLike);
-// router.delete('/cards/:id/likes', removeLike);
+router.delete('/cards/:id', deleteCardById);
+router.put('/cards/:id/likes', addLike);
+router.delete('/cards/:id/likes', removeLike);
 
 // динамический роут
 // router.get('/:id', getCardById);
