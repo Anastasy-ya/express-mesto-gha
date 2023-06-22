@@ -8,7 +8,7 @@ const cardSchema = new mongoose.Schema({
     maxlength: 30,
   },
   link: {
-    type: mongoose.Types.Url, // возможна ошибка
+    type: String,
     required: true,
     validate: {
       validator(v) {
@@ -18,10 +18,11 @@ const cardSchema = new mongoose.Schema({
     },
   },
   owner: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Types.ObjectId, // mongoose.Types.ObjectId,
     required: true,
     minlength: 2,
     maxlength: 30,
+    ref: 'user',
   },
   likes: [{
     type: mongoose.Types.ObjectId,

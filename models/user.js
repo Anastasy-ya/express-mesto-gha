@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     maxlength: 30,
   },
   avatar: {
-    type: mongoose.SchemaTypes.Url,
+    type: String, // mongoose.SchemaTypes.Url
     required: true,
     validate: {
       validator(v) {

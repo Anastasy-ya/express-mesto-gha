@@ -1,39 +1,75 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable eol-last */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
-const cards = []; // далее эти данные получим из базы
-let id = 0;
+const Card = require('../models/card');
 
 // req-запрос от фронтенда, res- ответ экспресса
 // такой обработчик с входящими (req, res) называется контроллер
 // обработчик с входящими (req, res, next) называются миддлвара
 const getCards = (req, res) => {
-  // console.log('загрузка данных главной страницы при входе начата');
-  res.send(cards);
+  Card.find({})
+    .then((cards) => res.send(cards))
+    .catch((err) => {
+      res.status(500).send({
+        message: 'Internal Server Error',
+        err: err.message,
+        stack: err.stack,
+      });
+    });
 };
 
 const createCard = (req, res) => {
-  id += 1;
-  const newCard = {
-    id,
-    ...req.body,
-  };
-  cards.push(newCard); // добавление новой карточки в массив карточек, это заменить обновлением бд
-  res.status(201).send(newCard); // вернуть статус 201 и данные обратно на фронтенд
+  console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
+  Card.create({ ...req.body, owner: req.user._id })
+    .then((card) => res.status(201).send(card))
+    .catch((err) => {
+      res.status(500).send({
+        message: 'Internal Server Error',
+        err: err.message,
+        stack: err.stack,
+      });
+    });
 };
 
-// динамический роут
-// const getCardById = (req, res) => { // разобраться с повторным объявлением переменной id
-//   const { _id } = req.params; // в req.params.id будет введенный пользователем id в виде строки
-//   const card = cards.find((item) => item.id === Number(_id));
-//   if (card) {
-//     return res.send(card);
-//   }
-//   return res.status(404).send({ message: 'The card is not found' });
-// };
+// динамический роут понадобится для пользователей
+const getCardById = (req, res) => { // разобраться с повторным объявлением переменной id
+  Card.findById(req.params.id)
+    .orFail(() => new Error('Not found'))
+    .then((card) => res.status(200).send(card))
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found'
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack
+        });
+      }
+    });
+};
 
 const deleteCardById = (req, res) => {
-  console.log(req, res);
+  console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
+  Card.findByIdAndRemove(req.params.id)
+    .orFail(() => new Error('Not found'))
+    .then((card) => res.status(200).send(card))
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found'
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack
+        });
+      }
+    });
 };
 
 const addLike = (req, res) => {
@@ -45,7 +81,7 @@ const removeLike = (req, res) => {
 };
 
 module.exports = {
-  // getCardById,
+  getCardById, // удалить
   createCard,
   getCards,
   deleteCardById,
