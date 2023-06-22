@@ -73,11 +73,55 @@ const deleteCardById = (req, res) => {
 };
 
 const addLike = (req, res) => {
-  console.log(req, res);
+  Card.findByIdAndUpdate(
+    req.user._id,
+    { $addToSet: { likes: req.user._id } },
+    {
+      new: true,
+      // runValidators: true,
+      // upsert: false,
+    },
+  )
+    .then((card) => res.status(200).send(card))
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found'
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack
+        });
+      }
+    });
 };
 
 const removeLike = (req, res) => {
-  console.log(req, res);
+  Card.findByIdAndUpdate(
+    req.user._id,
+    { $pull: { likes: req.user._id } },
+    {
+      new: true,
+      runValidators: true,
+      upsert: false,
+    },
+  )
+    .then((card) => res.status(200).send(card))
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found'
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack
+        });
+      }
+    });
 };
 
 module.exports = {
