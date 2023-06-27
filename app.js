@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 const express = require('express');
 // Слушаем 3000 порт
-const { PORT = 8080 } = process.env; // переменная для порта
+const { PORT = 3000 } = process.env; // переменная для порта
 const app = express();
 const mongoose = require('mongoose');
 // const bodyParser = require('bodyParser'); был заменен на express.json
