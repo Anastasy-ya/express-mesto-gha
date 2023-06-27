@@ -45,9 +45,8 @@ const createUser = (req, res) => {
       });
     });
 };
-// этот обновляет со 2 попытки
+
 const changeProfileData = (req, res) => {
-  // console.log(User);
   User.findByIdAndUpdate(
     req.user._id,
     {

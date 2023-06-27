@@ -40,13 +40,13 @@ const getCardById = (req, res) => { // разобраться с повторн�
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card is not found'
+          message: 'Card is not found',
         });
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
           err: err.message,
-          stack: err.stack
+          stack: err.stack,
         });
       }
     });
@@ -60,65 +60,73 @@ const deleteCardById = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card is not found'
+          message: 'Card is not found',
         });
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
           err: err.message,
-          stack: err.stack
+          stack: err.stack,
         });
       }
     });
 };
 
-const addLike = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.user._id,
-    { $addToSet: { likes: req.user._id } },
-    {
-      new: true,
-      // runValidators: true,
-      // upsert: false,
-    },
-  )
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'Card is not found'
-        });
-      } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack
-        });
-      }
-    });
-};
+// const addLike = (req, res) => {
+//   Card.findByIdAndUpdate(
+//     req.params.cardId,
+//     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+//     { new: true },
+//   )
+//     .orFail(new Error('Card is not found'))
+//     .then((card) => res.status(200).send(card))
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// };
+
+const addLike = (req, res) => Card.findByIdAndUpdate(
+  req.params.id,
+  { $addToSet: { likes: req.user._id } },
+  { new: true },
+)
+  .orFail(() => new Error('Not found'))
+  .then((card) => res.status(200).send(card))
+  .catch((err) => {
+    if (err.message === 'Not found') {
+      res.status(404).send({
+        message: 'Card is not found',
+      });
+    } else {
+      res.status(500).send({
+        message: 'Internal Server Error',
+        err: err.message,
+        stack: err.stack,
+      });
+    }
+  })
+  .finally(() => console.log(req.params));
 
 const removeLike = (req, res) => {
   Card.findByIdAndUpdate(
-    req.user._id,
+    req.params.id,
     { $pull: { likes: req.user._id } },
     {
       new: true,
-      runValidators: true,
-      upsert: false,
     },
   )
+    .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card is not found'
+          message: 'Card is not found',
         });
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
           err: err.message,
-          stack: err.stack
+          stack: err.stack,
         });
       }
     });
