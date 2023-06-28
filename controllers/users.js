@@ -54,7 +54,7 @@ const createUser = (req, res) => { // *
     });
 };
 
-const changeProfileData = (req, res) => {
+const changeProfileData = (req, res) => { // *
   User.findByIdAndUpdate(
     req.user._id,
     {
@@ -67,17 +67,24 @@ const changeProfileData = (req, res) => {
       upsert: false,
     },
   )
+    .orFail(() => new Error('Not found'))
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      res.status(500).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
+      if (err.message === 'Not found') {
+        res.status(400).send({
+          message: 'Invalid user ID',
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
     });
 };
 
-const changeProfileAvatar = (req, res) => {
+const changeProfileAvatar = (req, res) => { // *
   User.findByIdAndUpdate(
     req.user._id,
     {
@@ -94,7 +101,7 @@ const changeProfileAvatar = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card is not found',
+          message: 'Invalid user ID',
         });
       } else {
         res.status(500).send({

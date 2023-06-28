@@ -1,7 +1,7 @@
 /* eslint-disable eol-last */
 const router = require('express').Router();
 const {
-  getCardById, // удалить
+  // getCardById, // удалить
   createCard,
   getCards,
   deleteCardById,
@@ -16,6 +16,6 @@ router.put('/cards/:id/likes', addLike);
 router.delete('/cards/:id/likes', removeLike);
 
 // динамический роут удалить
-router.get('/cards/:id', getCardById);
+// router.get('/cards/:id', getCardById);
 
 module.exports = router;
