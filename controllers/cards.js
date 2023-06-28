@@ -72,19 +72,6 @@ const deleteCardById = (req, res) => {
     });
 };
 
-// const addLike = (req, res) => {
-//   Card.findByIdAndUpdate(
-//     req.params.cardId,
-//     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-//     { new: true },
-//   )
-//     .orFail(new Error('Card is not found'))
-//     .then((card) => res.status(200).send(card))
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// };
-
 const addLike = (req, res) => Card.findByIdAndUpdate(
   req.params.id,
   { $addToSet: { likes: req.user._id } },
