@@ -28,10 +28,14 @@ const getUserById = (req, res) => { // *
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(200).send(user))
     .catch((err) => {
+      console.log(err);
       if (err.message === 'Not found') {
-        res.status(400).send({
+        res.status(404).send({
           message: 'Invalid user ID',
         });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Не корректный ID пользователя' });
+        // return;
       } else {
         res.status(500).send({
           message: 'Internal Server Error',

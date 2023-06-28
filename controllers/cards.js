@@ -76,6 +76,9 @@ const deleteCardById = (req, res) => { // 400
         res.status(404).send({
           message: 'Card ID is not found',
         });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Не корректный ID пользователя' });
+        // return;
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
@@ -98,6 +101,9 @@ const addLike = (req, res) => Card.findByIdAndUpdate( // 400
       res.status(404).send({
         message: 'Card is not found',
       });
+    } else if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Не корректный ID пользователя' });
+      // return;
     } else {
       res.status(500).send({
         message: 'Internal Server Error',
@@ -122,6 +128,9 @@ const removeLike = (req, res) => { // 400
         res.status(404).send({
           message: 'Card is not found',
         });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Не корректный ID пользователя' });
+        // return;
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
