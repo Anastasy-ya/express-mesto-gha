@@ -9,26 +9,40 @@ const Card = require('../models/card');
 // обработчик с входящими (req, res, next) называются миддлвара
 const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.send(cards))
+    .orFail(() => new Error('Not found'))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
-      res.status(500).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found',
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
     });
 };
 
 const createCard = (req, res) => {
   console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
   Card.create({ ...req.body, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+    .orFail(() => new Error('Not found'))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
-      res.status(500).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found',
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
     });
 };
 
@@ -91,8 +105,7 @@ const addLike = (req, res) => Card.findByIdAndUpdate(
         stack: err.stack,
       });
     }
-  })
-  .finally(() => console.log(req.params));
+  });
 
 const removeLike = (req, res) => {
   Card.findByIdAndUpdate(

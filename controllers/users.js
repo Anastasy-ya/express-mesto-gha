@@ -3,46 +3,54 @@
 
 const User = require('../models/user');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res) => { // *
   User.find({})
-    .then((users) => res.send(users))
+    // .orFail(() => new Error('Not found'))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
+      // if (err.message === 'Not found') {
+      //   res.status(404).send({
+      //     message: 'Users is not found', // incorrect data
+      //   });
+      // } else {
       res.status(500).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
       });
+      // }
     });
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res) => { // *
   User.findById(req.params.id)
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
+    // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User is not found'
+        res.status(400).send({
+          message: 'Invalid user ID',
         });
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
           err: err.message,
-          stack: err.stack
+          stack: err.stack,
         });
       }
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res) => { // *
   User.create({ ...req.body, _id: req.user._id })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      res.status(500).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        return;
+      }
+      res.status(500).send({ message: 'Internal server error' });
     });
 };
 
@@ -81,13 +89,20 @@ const changeProfileAvatar = (req, res) => {
       upsert: false,
     },
   )
-    .then((user) => res.status(201).send(user))
+    .orFail(() => new Error('Not found'))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
-      res.status(500).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
+      if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'Card is not found',
+        });
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
     });
 };
 
