@@ -77,7 +77,7 @@ const deleteCardById = (req, res) => { // 400
           message: 'Card ID is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Не корректный ID пользователя' });
+        res.status(400).send({ message: 'Invalid user ID' });
         // return;
       } else {
         res.status(500).send({
@@ -102,7 +102,7 @@ const addLike = (req, res) => Card.findByIdAndUpdate( // 400
         message: 'Card is not found',
       });
     } else if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Не корректный ID пользователя' });
+      res.status(400).send({ message: 'Invalid user ID' });
       // return;
     } else {
       res.status(500).send({
@@ -129,7 +129,7 @@ const removeLike = (req, res) => { // 400
           message: 'Card is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Не корректный ID пользователя' });
+        res.status(400).send({ message: 'Invalid user ID' });
         // return;
       } else {
         res.status(500).send({

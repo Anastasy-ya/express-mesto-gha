@@ -34,6 +34,9 @@ app.use((req, res, next) => {
 
 app.use(cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
 app.use(userRoutes);
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Page not Found' });
+});
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
