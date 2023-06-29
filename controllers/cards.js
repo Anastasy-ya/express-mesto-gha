@@ -98,7 +98,7 @@ const deleteCardById = (req, res) => { // 400
         res.status(404).send({
           message: 'Card ID is not found',
         });
-      } else if (err.name === 'ValidationError') {
+      } else if (err.name === 'CastError') {
         res.status(400).send({ message: 'Invalid user ID' });
         // return;
       } else {

@@ -94,6 +94,9 @@ const changeProfileData = (req, res) => { // *
         res.status(400).send({
           message: 'Invalid user ID',
         });
+      } else if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        // return;
       } else {
         res.status(500).send({
           message: 'Internal Server Error',
