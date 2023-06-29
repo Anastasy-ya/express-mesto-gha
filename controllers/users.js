@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable indent */
 /* eslint-disable no-console */
 /* eslint-disable eol-last */
@@ -6,14 +7,8 @@ const User = require('../models/user');
 
 const getUsers = (req, res) => { // *
   User.find({})
-    // .orFail(() => new Error('Not found'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   res.status(404).send({
-      //     message: 'Users is not found', // incorrect data
-      //   });
-      // } else {
       res.status(500).send({
         message: 'Internal Server Error',
         err: err.message,
@@ -29,7 +24,6 @@ const getUserById = (req, res) => { // *
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      // console.log(err);
       if (err.message === 'Not found') {
         res.status(404).send({
           message: 'User ID is not found',
@@ -46,16 +40,6 @@ const getUserById = (req, res) => { // *
       }
     });
 };
-
-// const createUser = (req, res) => { // *
-//   console.log('посмотрим что приходит в функцию создания польз', req.user);
-//   User.create({ ...req.body, _id: req.user._id })
-//     .then((data) => console.log(data))
-//     .then((user) => res.status(201).send(user))
-//     .catch((err) => {
-//         res.status(500).send({ err, message: 'Internal server error' });
-//     });
-// };
 
 const createUser = (req, res) => {
   User.create({ ...req.body, _id: req.user._id }) // возникает ошибка при добавлении req.user._id

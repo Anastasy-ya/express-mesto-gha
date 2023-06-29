@@ -9,27 +9,18 @@ const Card = require('../models/card');
 // обработчик с входящими (req, res, next) называются миддлвара
 const getCards = (req, res) => { // *
   Card.find({})
-    // .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   res.status(404).send({
-      //     message: 'Card is not found',
-      //   });
-      // } else {
       res.status(500).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
       });
-      // }
     });
 };
 
 const createCard = (req, res) => {
-  // console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
   Card.create({ ...req.body, owner: req.user._id })
-    // .orFail(() => new Error('Not found'))
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       console.log('ошибка', err.name);
@@ -47,27 +38,7 @@ const createCard = (req, res) => {
     });
 };
 
-// const createCard = (req, res) => { // *
-//   // console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
-//   Card.create({ ...req.body, owner: req.user._id })
-//     .orFail(() => new Error('Not found'))
-//     .then((card) => res.status(201).send(card))
-//     .catch((err) => {
-//       if (err.message === 'Not found') {
-//         res.status(404).send({
-//           message: 'One of the fields or more is not filled correctly',
-//         });
-//       } else {
-//         res.status(500).send({
-//           message: 'Internal Server Error',
-//           err: err.message,
-//           stack: err.stack,
-//         });
-//       }
-//     });
-// }; нерабочий кусок кода
-
-// не нужный роут может пригодиться в будущем
+// ненужный роут может пригодиться в будущем
 // const getCardById = (req, res) => { // разобраться с повторным объявлением переменной id
 //   Card.findById(req.params.id)
 //     .orFail(() => new Error('Not found'))
@@ -87,8 +58,7 @@ const createCard = (req, res) => {
 //     });
 // };
 
-const deleteCardById = (req, res) => { // 400
-  // console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
+const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
