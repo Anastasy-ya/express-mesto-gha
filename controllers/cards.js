@@ -100,14 +100,14 @@ const deleteCardById = (req, res) => { // 400
         });
       } else if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Invalid user ID' });
-        return;
+        // return;
+      } else {
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(500).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
-      // }
     });
 };
 
