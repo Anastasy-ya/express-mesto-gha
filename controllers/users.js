@@ -47,22 +47,14 @@ const getUserById = (req, res) => { // *
     });
 };
 
-// const createUser = (req, res) => { // *
-//   console.log('посмотрим что приходит в функцию создания польз', req.user);
-//   User.create({ ...req.body, _id: req.user._id })
-//     .then((data) => console.log(data))
-//     .then((user) => res.status(201).send(user))
-//     .catch((err) => {
-//         res.status(500).send({ err, message: 'Internal server error' });
-//     });
-// };
-
 const createUser = (req, res) => {
+  console.log(req);
   User.create({ ...req.body, _id: req.user._id }) // возникает ошибка при добавлении req.user._id
-    .then((user) => res.status(201).send(user))
+  .then(() => console.log(req.body))
+  .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        res.status(400).send({ err, message: 'One of the fields or more is not filled correctly' });
         return;
       }
       res.status(500)
