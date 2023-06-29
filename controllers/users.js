@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable no-console */
 /* eslint-disable eol-last */
 
@@ -28,7 +29,7 @@ const getUserById = (req, res) => { // *
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
       if (err.message === 'Not found') {
         res.status(404).send({
           message: 'Invalid user ID',
@@ -46,16 +47,26 @@ const getUserById = (req, res) => { // *
     });
 };
 
-const createUser = (req, res) => { // *
-  User.create({ ...req.body, _id: req.user._id })
+// const createUser = (req, res) => { // *
+//   console.log('посмотрим что приходит в функцию создания польз', req.user);
+//   User.create({ ...req.body, _id: req.user._id })
+//     .then((data) => console.log(data))
+//     .then((user) => res.status(201).send(user))
+//     .catch((err) => {
+//         res.status(500).send({ err, message: 'Internal server error' });
+//     });
+// };
+
+const createUser = (req, res) => {
+  User.create({ ...req.body, _id: req.user._id }) // возникает ошибка при добавлении req.user._id
     .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
-        return;
-      }
-      res.status(500).send({ message: 'Internal server error' });
-    });
+    .catch((err) => res
+      .status(500)
+      .send({
+        message: 'Internal Server Error',
+        err: err.message,
+        stack: err.stack,
+      }));
 };
 
 const changeProfileData = (req, res) => { // *

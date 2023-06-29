@@ -18,19 +18,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 app.use(express.json()); // создает наполнение req.body
 
-app.use((req, res, next) => {
+app.use((req, res, next) => { // захардкодить id нового юзера
   req.user = {
-    _id: '5d8b8592978f8bd833c13333',
+    _id: '5d8b8592978f8bd833ca3333',
   };
 
   next();
 });
-
-// app.use((req, res, next) => {
-//   console.log(res.body);
-
-//   next();
-// });
 
 app.use(cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
 app.use(userRoutes);
