@@ -32,10 +32,10 @@ const getUserById = (req, res) => { // *
       // console.log(err);
       if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Invalid user ID',
+          message: 'User ID is not found',
         });
-      } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Не корректный ID пользователя' });
+      } else if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Invalid user ID' });
         // return;
       } else {
         res.status(500).send({
@@ -60,13 +60,18 @@ const getUserById = (req, res) => { // *
 const createUser = (req, res) => {
   User.create({ ...req.body, _id: req.user._id }) // возникает ошибка при добавлении req.user._id
     .then((user) => res.status(201).send(user))
-    .catch((err) => res
-      .status(500)
-      .send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        return;
+      }
+      res.status(500)
+        .send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
+      });
 };
 
 const changeProfileData = (req, res) => { // *

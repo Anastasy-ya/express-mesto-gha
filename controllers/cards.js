@@ -32,8 +32,9 @@ const createCard = (req, res) => {
     // .orFail(() => new Error('Not found'))
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(404).send({
+      console.log('ошибка', err.name);
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
           message: 'One of the fields or more is not filled correctly',
         });
       } else {
@@ -92,20 +93,21 @@ const deleteCardById = (req, res) => { // 400
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
+      console.log(err);
       if (err.message === 'Not found') {
         res.status(404).send({
           message: 'Card ID is not found',
         });
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Invalid user ID' });
-        // return;
-      } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        return;
       }
+      res.status(500).send({
+        message: 'Internal Server Error',
+        err: err.message,
+        stack: err.stack,
+      });
+      // }
     });
 };
 
