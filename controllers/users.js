@@ -4,8 +4,8 @@
 /* eslint-disable no-console */
 /* eslint-disable eol-last */
 
-const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const User = require('../models/user');
 
 const getUsers = (req, res) => { // *
   User.find({})
@@ -55,10 +55,9 @@ const createUser = (req, res) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       ...req.body,
-      _id: req.user._id, //
       password: hash,
-    }) // возникает ошибка при добавлении req.user._id
-    .then(() => console.log(req.body))
+    })
+    // .then(() => console.log(req.body))
     .then((user) => res.status(201).send(user))
     .catch((err) => {
         if (err.name === 'ValidationError') {
@@ -71,8 +70,7 @@ const createUser = (req, res) => {
             err: err.message,
             stack: err.stack,
           });
-        })
-    )
+        }));
 };
 
 const changeProfileData = (req, res) => { // *
