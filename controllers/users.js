@@ -42,7 +42,7 @@ const getUserById = (req, res) => { // *
 };
 
 const createUser = (req, res) => {
-  User.create({ ...req.body, _id: req.user._id }) // возникает ошибка при добавлении req.user._id
+  User.create({ ...req.body }) // возникает ошибка при добавлении req.user._id _id: req.user._id
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
