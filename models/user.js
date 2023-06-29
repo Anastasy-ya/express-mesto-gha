@@ -42,12 +42,3 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('user', userSchema);
-
-// avatar: {
-//   type: String,
-//   default: '...',
-//   validate: {
-//     validator: (v) => urlRegExp.test(v),
-//     message: 'Поле "avatar" должно быть валидным url-адресом.',
-//   },
-// },

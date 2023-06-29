@@ -1,9 +1,11 @@
+/* eslint-disable max-len */
 /* eslint-disable linebreak-style */
 /* eslint-disable indent */
 /* eslint-disable no-console */
 /* eslint-disable eol-last */
 
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 
 const getUsers = (req, res) => { // *
   User.find({})
@@ -50,21 +52,27 @@ const getUserById = (req, res) => { // *
 
 const createUser = (req, res) => {
   console.log(req);
-  User.create({ ...req.body, _id: req.user._id }) // возникает ошибка при добавлении req.user._id
-  .then(() => console.log(req.body))
-  .then((user) => res.status(201).send(user))
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      ...req.body,
+      _id: req.user._id, //
+      password: hash,
+    }) // возникает ошибка при добавлении req.user._id
+    .then(() => console.log(req.body))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ err, message: 'One of the fields or more is not filled correctly' });
-        return;
-      }
-      res.status(500)
-        .send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
-      });
+        if (err.name === 'ValidationError') {
+          res.status(400).send({ err, message: 'One of the fields or more is not filled correctly' });
+          return;
+        }
+        res.status(500)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
+        })
+    )
 };
 
 const changeProfileData = (req, res) => { // *

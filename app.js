@@ -22,7 +22,6 @@ app.use((req, res, next) => { // захардкодить id нового юзе
   req.user = {
     _id: '5d8b8592978f8bd833ca3333',
   };
-
   next();
 });
 
