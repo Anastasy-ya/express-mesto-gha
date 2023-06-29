@@ -34,7 +34,7 @@ const getUserById = (req, res) => { // *
         res.status(404).send({
           message: 'User ID is not found',
         });
-      } else if (err.name === 'ValidationError') {
+      } else if (err.name === 'CastError') {
         res.status(400).send({ message: 'Invalid user ID' });
         // return;
       } else {
@@ -88,7 +88,7 @@ const changeProfileData = (req, res) => { // *
     },
   )
     .orFail(() => new Error('Not found'))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(400).send({
