@@ -5,9 +5,6 @@ const Card = require('../models/card');
 // const InternalServerError = require('../errors/InternalServerError');
 // const NotFound = require('../errors/NotFound');
 
-// req-запрос от фронтенда, res- ответ экспресса
-// такой обработчик с входящими (req, res) называется контроллер
-// обработчик с входящими (req, res, next) называются миддлвара
 const getCards = (req, res) => { // *
   console.log(http2);
   Card.find({})
@@ -21,13 +18,10 @@ const getCards = (req, res) => { // *
     });
 };
 
-// console.log(http2);
-
 const createCard = (req, res) => {
   Card.create({ ...req.body, owner: req.user._id })
     .then((card) => res.status(http2.HTTP_STATUS_CREATED).send(card))
     .catch((err) => {
-      // console.log('ошибка', err.name);
       if (err.name === 'ValidationError') {
         res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
           message: 'One of the fields or more is not filled correctly',
@@ -69,7 +63,6 @@ const deleteCardById = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
-      // console.log(err);
       if (err.message === 'Not found') {
         res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'Card ID is not found',
@@ -91,7 +84,7 @@ const deleteCardById = (req, res) => {
     });
 };
 
-const addLike = (req, res) => Card.findByIdAndUpdate( // 400
+const addLike = (req, res) => Card.findByIdAndUpdate(
   req.params.id,
   { $addToSet: { likes: req.user._id } },
   { new: true },
@@ -115,7 +108,7 @@ const addLike = (req, res) => Card.findByIdAndUpdate( // 400
     }
   });
 
-const removeLike = (req, res) => { // 400
+const removeLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
