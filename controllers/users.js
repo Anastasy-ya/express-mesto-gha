@@ -7,9 +7,9 @@ const User = require('../models/user');
 
 const getUsers = (req, res) => { // *
   User.find({})
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      res.status(500).send({
+      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
@@ -22,17 +22,17 @@ const getUserById = (req, res) => { // *
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'User ID is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Invalid user ID' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -46,10 +46,10 @@ const createUser = (req, res) => {
     .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
         return;
       }
-      res.status(500)
+      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
         .send({
           message: 'Internal Server Error',
           err: err.message,
@@ -72,17 +72,17 @@ const changeProfileData = (req, res) => { // *
     },
   )
     .orFail(() => new Error('Not found'))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(400).send({
-          message: 'Invalid user ID',
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+          message: 'Invalid user ID', // 400
         });
       } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -104,14 +104,14 @@ const changeProfileAvatar = (req, res) => { // *
     },
   )
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'Invalid user ID',
         });
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,

@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 // создает наполнение req.body
 
 const cors = require('cors');
+const http2 = require('http2').constants;
 
 const cardRoutes = require('./routes/cards');
 const userRoutes = require('./routes/users');
@@ -18,12 +19,6 @@ const userRoutes = require('./routes/users');
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
-
-console.log(
-  mongoose.Error.CastError,
-  mongoose.Error.ValidationError,
-  mongoose.Error.ValidatorError,
-  Error);
 
 // CORS
 app.use(cors({
@@ -45,7 +40,7 @@ app.use((req, res, next) => { // захардкодить id нового юзе
 app.use('/cards', cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
 app.use('/users', userRoutes);
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Page not Found' });
+  res.status(http2.HTTP_STATUS_NOT_FOUND).send({ message: 'Page not Found' });
 });
 
 app.listen(PORT, () => {
