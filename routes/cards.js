@@ -1,4 +1,3 @@
-/* eslint-disable eol-last */
 const router = require('express').Router();
 const {
   // getCardById, // удалить
@@ -9,11 +8,11 @@ const {
   removeLike,
 } = require('../controllers/cards');
 
-router.get('/cards', getCards);
-router.post('/cards', createCard);
-router.delete('/cards/:id', deleteCardById);
-router.put('/cards/:id/likes', addLike);
-router.delete('/cards/:id/likes', removeLike);
+router.get('/', getCards);
+router.post('/', createCard);
+router.delete('/:id', deleteCardById);
+router.put('/:id/likes', addLike);
+router.delete('/:id/likes', removeLike);
 
 // динамический роут удалить
 // router.get('/cards/:id', getCardById);

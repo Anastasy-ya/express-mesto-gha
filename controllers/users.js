@@ -1,9 +1,9 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable indent */
 /* eslint-disable no-console */
-/* eslint-disable eol-last */
-
+const http2 = require('http2').constants;
 const User = require('../models/user');
+const ValidationError = require('../errors/ValidationError');
+const InternalServerError = require('../errors/InternalServerError');
+const NotFound = require('../errors/NotFound');
 
 const getUsers = (req, res) => { // *
   User.find({})
@@ -18,6 +18,29 @@ const getUsers = (req, res) => { // *
     });
 };
 
+// const getUserById = (req, res) => { // *
+//   User.findById(req.params.id)
+//     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
+//     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
+//     .then((user) => res.status(200).send(user))
+//     .catch((err) => {
+//       if (err.message === 'Not found') {
+//         res.status(404).send({
+//           message: 'User ID is not found',
+//         });
+//       } else if (err.name === 'CastError') {
+//         res.status(400).send({ message: 'Invalid user ID' });
+//         // return;
+//       } else {
+//         res.status(500).send({
+//           message: 'Internal Server Error',
+//           err: err.message,
+//           stack: err.stack,
+//         });
+//       }
+//     });
+// };
+
 const getUserById = (req, res) => { // *
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
@@ -25,25 +48,19 @@ const getUserById = (req, res) => { // *
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User ID is not found',
-        });
+        res.send(new NotFound('User ID is not found'));
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Invalid user ID' });
+        res.send(new ValidationError('Invalid user ID'));
         // return;
       } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res.send(new InternalServerError('Internal Server Error'));
       }
     });
 };
 
 const createUser = (req, res) => {
   User.create({ ...req.body }) // возникает ошибка при добавлении req.user._id _id: req.user._id
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
@@ -55,7 +72,7 @@ const createUser = (req, res) => {
           err: err.message,
           stack: err.stack,
         });
-      });
+    });
 };
 
 const changeProfileData = (req, res) => { // *

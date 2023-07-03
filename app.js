@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 // const bodyParser = require('bodyParser'); был заменен на express.json
 // создает наполнение req.body
 
+const cors = require('cors');
+
 const cardRoutes = require('./routes/cards');
 const userRoutes = require('./routes/users');
 
@@ -16,6 +18,19 @@ const userRoutes = require('./routes/users');
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
+
+console.log(
+  mongoose.Error.CastError,
+  mongoose.Error.ValidationError,
+  mongoose.Error.ValidatorError,
+  Error);
+
+// CORS
+app.use(cors({
+  origin: ['http://localhost: 3000'], // потом заменить адрес на постоянный
+  credentials: true, // разрешить куки
+  methods: ['GET', 'PUT', 'POST', 'PATCH', 'DEL'],
+}));
 
 app.use(express.json()); // создает наполнение req.body
 
@@ -27,8 +42,8 @@ app.use((req, res, next) => { // захардкодить id нового юзе
   next();
 });
 
-app.use(cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
-app.use(userRoutes);
+app.use('/cards', cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
+app.use('/users', userRoutes);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Page not Found' });
 });

@@ -1,8 +1,9 @@
-/* eslint-disable object-curly-newline */
-/* eslint-disable eol-last */
 /* eslint-disable no-console */
-/* eslint-disable max-len */
+const http2 = require('http2').constants;
 const Card = require('../models/card');
+const ValidationError = require('../errors/ValidationError');
+const InternalServerError = require('../errors/InternalServerError');
+const NotFound = require('../errors/NotFound');
 
 // req-запрос от фронтенда, res- ответ экспресса
 // такой обработчик с входящими (req, res) называется контроллер
@@ -21,7 +22,7 @@ const getCards = (req, res) => { // *
 
 const createCard = (req, res) => {
   Card.create({ ...req.body, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_CREATED).send(card))
     .catch((err) => {
       console.log('ошибка', err.name);
       if (err.name === 'ValidationError') {
