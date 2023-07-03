@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
 const User = require('../models/user');
-const ValidationError = require('../errors/ValidationError');
-const InternalServerError = require('../errors/InternalServerError');
-const NotFound = require('../errors/NotFound');
+// const ValidationError = require('../errors/ValidationError');
+// const InternalServerError = require('../errors/InternalServerError');
+// const NotFound = require('../errors/NotFound');
 
 const getUsers = (req, res) => { // *
   User.find({})

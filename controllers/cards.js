@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
 const Card = require('../models/card');
-const ValidationError = require('../errors/ValidationError');
-const InternalServerError = require('../errors/InternalServerError');
-const NotFound = require('../errors/NotFound');
+// const ValidationError = require('../errors/ValidationError');
+// const InternalServerError = require('../errors/InternalServerError');
+// const NotFound = require('../errors/NotFound');
 
 // req-запрос от фронтенда, res- ответ экспресса
 // такой обработчик с входящими (req, res) называется контроллер
@@ -12,7 +12,7 @@ const getCards = (req, res) => { // *
   Card.find({})
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      res.status(500).send({
+      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
@@ -26,11 +26,13 @@ const createCard = (req, res) => {
     .catch((err) => {
       console.log('ошибка', err.name);
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
           message: 'One of the fields or more is not filled correctly',
+          err: err.message,
+          stack: err.stack,
         });
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -64,16 +66,20 @@ const deleteCardById = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'Card ID is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Invalid user ID' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
+          message: 'Invalid user ID',
+          err: err.message,
+          stack: err.stack,
+        });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
