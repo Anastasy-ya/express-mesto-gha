@@ -18,29 +18,6 @@ const getUsers = (req, res) => { // *
     });
 };
 
-// const getUserById = (req, res) => { // *
-//   User.findById(req.params.id)
-//     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
-//     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
-//     .then((user) => res.status(200).send(user))
-//     .catch((err) => {
-//       if (err.message === 'Not found') {
-//         res.status(404).send({
-//           message: 'User ID is not found',
-//         });
-//       } else if (err.name === 'CastError') {
-//         res.status(400).send({ message: 'Invalid user ID' });
-//         // return;
-//       } else {
-//         res.status(500).send({
-//           message: 'Internal Server Error',
-//           err: err.message,
-//           stack: err.stack,
-//         });
-//       }
-//     });
-// };
-
 const getUserById = (req, res) => { // *
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
@@ -48,12 +25,18 @@ const getUserById = (req, res) => { // *
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.send(new NotFound('User ID is not found'));
+        res.status(404).send({
+          message: 'User ID is not found',
+        });
       } else if (err.name === 'CastError') {
-        res.send(new ValidationError('Invalid user ID'));
+        res.status(400).send({ message: 'Invalid user ID' });
         // return;
       } else {
-        res.send(new InternalServerError('Internal Server Error'));
+        res.status(500).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
     });
 };
