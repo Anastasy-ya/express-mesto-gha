@@ -45,26 +45,24 @@ const getUserById = (req, res) => { // *
 };
 
 const createUser = (req, res) => {
-  // bcrypt.hash(req.body.password, 10)
-  //   .then((hash) =>
-  User.create({
-    ...req.body,
-    // password: hash,
-  })
-    .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
-        return;
-      }
-      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
-      // }));
-    });
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      ...req.body,
+      password: hash,
+    })
+      .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
+          return;
+        }
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
+      }));
 };
 
 const changeProfileData = (req, res) => { // *
