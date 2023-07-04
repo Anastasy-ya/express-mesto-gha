@@ -8,27 +8,43 @@ const mongoose = require('mongoose');
 // const bodyParser = require('bodyParser'); был заменен на express.json
 // создает наполнение req.body
 
+const cors = require('cors');
+const http2 = require('http2').constants;
+
 const cardRoutes = require('./routes/cards');
 const userRoutes = require('./routes/users');
+// const login = require('./routes/');
+// const createUser = require('./routes/');
 
 // подключение к серверу монго
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
 
+// CORS
+app.use(cors({
+  origin: ['http://localhost: 3000'], // потом заменить адрес на постоянный
+  credentials: true, // разрешить куки
+  methods: ['GET', 'PUT', 'POST', 'PATCH', 'DEL'],
+}));
+
 app.use(express.json()); // создает наполнение req.body
 
 app.use((req, res, next) => { // захардкодить id нового юзера
   req.user = {
-    _id: '5d8b8592978f8bd833ca3333',
+    _id: '5d8b8592978f8bd833c13333',
   };
+
   next();
 });
 
-app.use(cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
-app.use(userRoutes);
+// app.post('/signin', login); // авторизация
+// app.post('/signup', createUser); //регистрация
+
+app.use('/cards', cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
+app.use('/users', userRoutes);
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Page not Found' });
+  res.status(http2.HTTP_STATUS_NOT_FOUND).send({ message: 'Page not Found' });
 });
 
 app.listen(PORT, () => {

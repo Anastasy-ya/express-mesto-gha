@@ -1,23 +1,18 @@
-/* eslint-disable max-len */
-/* eslint-disable linebreak-style */
-/* eslint-disable indent */
 /* eslint-disable no-console */
-/* eslint-disable eol-last */
-
+const http2 = require('http2').constants;
 const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+// const ValidationError = require('../errors/ValidationError');
+// const InternalServerError = require('../errors/InternalServerError');
+// const NotFound = require('../errors/NotFound');
 
 const getUsers = (req, res) => { // *
   User.find({})
-    // .orFail(() => new Error('Not found'))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   res.status(404).send({
-      //     message: 'Users is not found', // incorrect data
-      //   });
-      // } else {
-      res.status(500).send({
+      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
@@ -30,18 +25,17 @@ const getUserById = (req, res) => { // *
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      // console.log(err);
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'User ID is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Invalid user ID' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -51,26 +45,24 @@ const getUserById = (req, res) => { // *
 };
 
 const createUser = (req, res) => {
-  console.log(req);
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       ...req.body,
       password: hash,
     })
-    // .then(() => console.log(req.body))
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
+      .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
+      .catch((err) => {
         if (err.name === 'ValidationError') {
-          res.status(400).send({ err, message: 'One of the fields or more is not filled correctly' });
+          res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
           return;
         }
-        res.status(500)
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
           .send({
             message: 'Internal Server Error',
             err: err.message,
             stack: err.stack,
           });
-        }));
+      }));
 };
 
 const changeProfileData = (req, res) => { // *
@@ -79,6 +71,8 @@ const changeProfileData = (req, res) => { // *
     {
       name: req.body.name,
       about: req.body.about,
+      email: req.body.email,
+      password: req.body.password,
     },
     {
       new: true,
@@ -87,17 +81,17 @@ const changeProfileData = (req, res) => { // *
     },
   )
     .orFail(() => new Error('Not found'))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(400).send({
-          message: 'Invalid user ID',
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+          message: 'Invalid user ID', // 400
         });
       } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'One of the fields or more is not filled correctly' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -119,19 +113,46 @@ const changeProfileAvatar = (req, res) => { // *
     },
   )
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'Invalid user ID',
         });
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
         });
       }
+    });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      // аутентификация успешна
+      return res.send({ message: 'Всё верно!' });// надо отправить jwt
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };
 
@@ -141,4 +162,5 @@ module.exports = {
   createUser,
   changeProfileData,
   changeProfileAvatar,
+  login,
 };

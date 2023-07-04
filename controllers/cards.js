@@ -1,45 +1,35 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable object-curly-newline */
-/* eslint-disable eol-last */
 /* eslint-disable no-console */
-/* eslint-disable max-len */
+const http2 = require('http2').constants;
 const Card = require('../models/card');
+// const ValidationError = require('../errors/ValidationError');
+// const InternalServerError = require('../errors/InternalServerError');
+// const NotFound = require('../errors/NotFound');
 
-// req-запрос от фронтенда, res- ответ экспресса
-// такой обработчик с входящими (req, res) называется контроллер
-// обработчик с входящими (req, res, next) называются миддлвара
 const getCards = (req, res) => { // *
+  // console.log(http2);
   Card.find({})
-    // .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   res.status(404).send({
-      //     message: 'Card is not found',
-      //   });
-      // } else {
-      res.status(500).send({
+      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
       });
-      // }
     });
 };
 
 const createCard = (req, res) => {
-  // console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
   Card.create({ ...req.body, owner: req.user._id })
-    // .orFail(() => new Error('Not found'))
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_CREATED).send(card))
     .catch((err) => {
-      console.log('ошибка', err.name);
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
           message: 'One of the fields or more is not filled correctly',
+          err: err.message,
+          stack: err.stack,
         });
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -48,38 +38,18 @@ const createCard = (req, res) => {
     });
 };
 
-// const createCard = (req, res) => { // *
-//   // console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
-//   Card.create({ ...req.body, owner: req.user._id })
-//     .orFail(() => new Error('Not found'))
-//     .then((card) => res.status(201).send(card))
-//     .catch((err) => {
-//       if (err.message === 'Not found') {
-//         res.status(404).send({
-//           message: 'One of the fields or more is not filled correctly',
-//         });
-//       } else {
-//         res.status(500).send({
-//           message: 'Internal Server Error',
-//           err: err.message,
-//           stack: err.stack,
-//         });
-//       }
-//     });
-// }; нерабочий кусок кода
-
-// не нужный роут может пригодиться в будущем
+// ненужный роут может пригодиться в будущем
 // const getCardById = (req, res) => { // разобраться с повторным объявлением переменной id
 //   Card.findById(req.params.id)
 //     .orFail(() => new Error('Not found'))
-//     .then((card) => res.status(200).send(card))
+//     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
 //     .catch((err) => {
 //       if (err.message === 'Not found') {
 //         res.status(404).send({
 //           message: 'Card is not found',
 //         });
 //       } else {
-//         res.status(500).send({
+//         res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
 //           message: 'Internal Server Error',
 //           err: err.message,
 //           stack: err.stack,
@@ -88,22 +58,24 @@ const createCard = (req, res) => {
 //     });
 // };
 
-const deleteCardById = (req, res) => { // 400
-  // console.log('req.params', req.params, 'req.user', req.user, 'req.body', req.body);
+const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
-      console.log(err);
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'Card ID is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Invalid user ID' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
+          message: 'Invalid user ID',
+          err: err.message,
+          stack: err.stack,
+        });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
@@ -112,23 +84,23 @@ const deleteCardById = (req, res) => { // 400
     });
 };
 
-const addLike = (req, res) => Card.findByIdAndUpdate( // 400
+const addLike = (req, res) => Card.findByIdAndUpdate(
   req.params.id,
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
   .orFail(() => new Error('Not found'))
-  .then((card) => res.status(200).send(card))
+  .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
   .catch((err) => {
     if (err.message === 'Not found') {
-      res.status(404).send({
+      res.status(http2.HTTP_STATUS_NOT_FOUND).send({
         message: 'Card is not found',
       });
     } else if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Invalid user ID' });
+      res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       // return;
     } else {
-      res.status(500).send({
+      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
         message: 'Internal Server Error',
         err: err.message,
         stack: err.stack,
@@ -136,7 +108,7 @@ const addLike = (req, res) => Card.findByIdAndUpdate( // 400
     }
   });
 
-const removeLike = (req, res) => { // 400
+const removeLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
@@ -145,17 +117,17 @@ const removeLike = (req, res) => { // 400
     },
   )
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'Card is not found',
         });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Invalid user ID' });
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
         // return;
       } else {
-        res.status(500).send({
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
           message: 'Internal Server Error',
           err: err.message,
           stack: err.stack,
