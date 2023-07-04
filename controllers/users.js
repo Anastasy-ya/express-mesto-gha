@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
 // const ValidationError = require('../errors/ValidationError');
 // const InternalServerError = require('../errors/InternalServerError');
 // const NotFound = require('../errors/NotFound');
@@ -42,20 +45,24 @@ const getUserById = (req, res) => { // *
 };
 
 const createUser = (req, res) => {
-  User.create({ ...req.body }) // возникает ошибка при добавлении req.user._id _id: req.user._id
-    .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
-        return;
-      }
-      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
-    });
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      ...req.body,
+      password: hash,
+    })
+      .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
+          return;
+        }
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
+      }));
 };
 
 const changeProfileData = (req, res) => { // *
@@ -64,6 +71,8 @@ const changeProfileData = (req, res) => { // *
     {
       name: req.body.name,
       about: req.body.about,
+      email: req.body.email,
+      password: req.body.password,
     },
     {
       new: true,
@@ -120,10 +129,38 @@ const changeProfileAvatar = (req, res) => { // *
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      // аутентификация успешна
+      return res.send({ message: 'Всё верно!' });// надо отправить jwt
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   changeProfileData,
   changeProfileAvatar,
+  login,
 };

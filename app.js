@@ -31,7 +31,7 @@ app.use(express.json()); // создает наполнение req.body
 
 app.use((req, res, next) => { // захардкодить id нового юзера
   req.user = {
-    _id: '5d8b8592978f8bd833ca3333',
+    _id: '5d8b8592978f8bd833c13333',
   };
 
   next();
