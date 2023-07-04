@@ -14,6 +14,8 @@ const http2 = require('http2').constants;
 
 const cardRoutes = require('./routes/cards');
 const userRoutes = require('./routes/users');
+// const login = require('./routes/');
+// const createUser = require('./routes/');
 
 // подключение к серверу монго
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
@@ -36,6 +38,9 @@ app.use((req, res, next) => { // захардкодить id нового юзе
 
   next();
 });
+
+// app.post('/signin', login); // авторизация
+// app.post('/signup', createUser); //регистрация
 
 app.use('/cards', cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
 app.use('/users', userRoutes);

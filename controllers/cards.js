@@ -6,7 +6,7 @@ const Card = require('../models/card');
 // const NotFound = require('../errors/NotFound');
 
 const getCards = (req, res) => { // *
-  console.log(http2);
+  // console.log(http2);
   Card.find({})
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {

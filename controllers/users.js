@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 // const ValidationError = require('../errors/ValidationError');
