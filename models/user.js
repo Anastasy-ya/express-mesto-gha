@@ -24,15 +24,16 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
     unique: true,
+    required: true,
     validate: [isEmail, 'Invalid Email'],
   },
   password: {
     type: String,
+    select: false, // запрет обратной отправки не работает
     required: true,
     validate: [isStrongPassword, 'Password is too simple!'],
-    minlength: 8,
+    // хавает любой пароль потому что предварительно хеширует его, это проблема
   },
 });
 

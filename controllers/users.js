@@ -44,8 +44,9 @@ const getUserById = (req, res) => { // *
     });
 };
 
-const createUser = (req, res) => {
-  bcrypt.hash(req.body.password, 10)
+const createUser = (req, res) => { // добавить next в аргументы и вместо catch
+  bcrypt.hash(req.body.password, 10) // пароль - только строка! 31min
+  // соль стоит передавать в виде переменной и хранить ее отдельно при помощи специального модуля
     .then((hash) => User.create({
       ...req.body,
       password: hash,
@@ -129,7 +130,8 @@ const changeProfileAvatar = (req, res) => { // *
     });
 };
 
-const login = (req, res) => {
+const login = (req, res) => { // продолжение
+  console.log(req, res);
   const { email, password } = req.body;
 
   User.findOne({ email })
@@ -145,7 +147,6 @@ const login = (req, res) => {
         // хеши не совпали — отклоняем промис
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-
       // аутентификация успешна
       return res.send({ message: 'Всё верно!' });// надо отправить jwt
     })
