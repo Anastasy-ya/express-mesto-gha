@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
+const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
 
 // const ValidationError = require('../errors/ValidationError');
@@ -68,8 +69,8 @@ const getUserById = (req, res) => { // *
 //       }));
 // };
 
-const createUser = (req, res, next) => { // добавить next в аргументы и вместо catch
-  bcrypt.hash(req.body.password, 10) // пароль - только строка! 31min
+const createUser = (req, res, next) => {
+  bcrypt.hash(req.body.password, 10) // пароль - только строка
   // соль стоит передавать в виде переменной и хранить ее отдельно при помощи специального модуля
     .then((hash) => {
       User.create({
@@ -146,6 +147,7 @@ const changeProfileAvatar = (req, res) => { // *
     });
 };
 
+// старый код
 // const login = (req, res) => { // продолжение
 //   // console.log(req, res);
 //   const { email, password } = req.body;
@@ -173,24 +175,25 @@ const changeProfileAvatar = (req, res) => { // *
 //     });
 // };
 
+// новый код
 const login = (req, res, next) => {
   // Вытащить email и password
   const { email, password } = req.body;
 
   // Проверить существует ли пользователь с таким email
   User.findOne({ email })
-    // .select('+password')
+    .select('+password')
     .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
       // Проверить совпадает ли пароль
-      bcrypt.compare(String(password), user.password)
+      bcrypt.compare(password, user.password)
         .then((isValidUser) => {
           if (isValidUser) {
             // создать JWT
-            // jwt.jsonWebToken.sign({
-            //   _id: user._id,
-            // }, process.env['JWT_SECRET']);
-
+            const jwt = jsonWebToken.sign({
+              _id: user._id,
+            }, 'JWT.SECRET');
+            // console.log('jwt', jwt);
             // прикрепить его к куке
             res.cookie('jwt', jwt, {
               maxAge: 360000,
@@ -204,7 +207,7 @@ const login = (req, res, next) => {
             // Если не совпадает -- вернуть ошибку
             res.status(403).send({ message: 'Неправильный пароль' });
           }
-        })
+        });
     })
     .catch(next);
 };
