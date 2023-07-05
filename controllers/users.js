@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
 const bcrypt = require('bcrypt');
-// const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 // const ValidationError = require('../errors/ValidationError');
@@ -44,26 +44,42 @@ const getUserById = (req, res) => { // *
     });
 };
 
-const createUser = (req, res) => { // добавить next в аргументы и вместо catch
+// старый код
+// const createUser = (req, res, next) => { // добавить next в аргументы и вместо catch
+//   bcrypt.hash(req.body.password, 10) // пароль - только строка! 31min
+//   // соль стоит передавать в виде переменной и хранить ее отдельно при помощи специального модуля
+//     .then((hash) => User.create({
+//       ...req.body,
+//       password: hash,
+//     })
+//       .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
+//       .catch((err) => {
+//         if (err.name === 'ValidationError') {
+//           res.status(http2.HTTP_STATUS_BAD_REQUEST)
+//             .send({ message: 'One of the fields or more is not filled correctly' });
+//           return;
+//         }
+//         res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+//           .send({
+//             message: 'Internal Server Error',
+//             err: err.message,
+//             stack: err.stack,
+//           });
+//       }));
+// };
+
+const createUser = (req, res, next) => { // добавить next в аргументы и вместо catch
   bcrypt.hash(req.body.password, 10) // пароль - только строка! 31min
   // соль стоит передавать в виде переменной и хранить ее отдельно при помощи специального модуля
-    .then((hash) => User.create({
-      ...req.body,
-      password: hash,
+    .then((hash) => {
+      User.create({
+        ...req.body,
+        password: hash,
+      })
+        .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
+        .catch(next);
     })
-      .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'One of the fields or more is not filled correctly' });
-          return;
-        }
-        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }));
+    .catch(next);
 };
 
 const changeProfileData = (req, res) => { // *
@@ -130,31 +146,67 @@ const changeProfileAvatar = (req, res) => { // *
     });
 };
 
-const login = (req, res) => { // продолжение
-  console.log(req, res);
+// const login = (req, res) => { // продолжение
+//   // console.log(req, res);
+//   const { email, password } = req.body;
+
+//   User.findOne({ email })
+//     .then((user) => {
+//       if (!user) {
+//         return Promise.reject(new Error('Неправильные почта или пароль'));
+//       }
+//       // password передан польз user.password найден в базе
+//       return bcrypt.compare(password, user.password);
+//     })
+//     .then((matched) => { // true/false
+//       if (!matched) {
+//         // хеши не совпали — отклоняем промис
+//         return Promise.reject(new Error('Неправильные почта или пароль')); // 403
+//       }
+//       // аутентификация успешна
+//       return res.send({ message: 'Всё верно!' });// надо отправить jwt
+//     })
+//     .catch((err) => {
+//       res
+//         .status(401)
+//         .send({ message: err.message });
+//     });
+// };
+
+const login = (req, res, next) => {
+  // Вытащить email и password
   const { email, password } = req.body;
 
+  // Проверить существует ли пользователь с таким email
   User.findOne({ email })
+    // .select('+password')
+    .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
+      // Проверить совпадает ли пароль
+      bcrypt.compare(String(password), user.password)
+        .then((isValidUser) => {
+          if (isValidUser) {
+            // создать JWT
+            // jwt.jsonWebToken.sign({
+            //   _id: user._id,
+            // }, process.env['JWT_SECRET']);
 
-      return bcrypt.compare(password, user.password);
+            // прикрепить его к куке
+            res.cookie('jwt', jwt, {
+              maxAge: 360000,
+              httpOnly: true,
+              sameSite: true,
+            });
+
+            // Если совпадает -- вернуть пользователя
+            res.send({ data: user.toJSON() });
+          } else {
+            // Если не совпадает -- вернуть ошибку
+            res.status(403).send({ message: 'Неправильный пароль' });
+          }
+        })
     })
-    .then((matched) => {
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      // аутентификация успешна
-      return res.send({ message: 'Всё верно!' });// надо отправить jwt
-    })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };
 
 module.exports = {
