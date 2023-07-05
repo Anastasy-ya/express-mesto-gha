@@ -30,11 +30,18 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    select: false, // запрет обратной отправки не работает
+    // select: false, // запрет обратной отправки не работает
     required: true,
     validate: [isStrongPassword, 'Password is too simple!'],
     // хавает любой пароль потому что предварительно хеширует его, это проблема
   },
 });
+
+userSchema.methods.toJSON = function s() { // преобразование объекта название метода
+  const user = this.toObject(); // преобразовать в js объект
+  delete user.password;
+
+  return user; // затем передадим объект на отправку серверу
+};
 
 module.exports = mongoose.model('user', userSchema);

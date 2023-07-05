@@ -34,13 +34,13 @@ app.use(cors({
 app.use(express.json()); // создает наполнение req.body
 app.use(cookieParser());
 
-// app.use((req, res, next) => { // захардкодить id нового юзера
-//   req.user = {
-//     _id: '5d8b8592978f8bd833c13333',
-//   };
+app.use((req, res, next) => { // захардкодить id нового юзера
+  req.user = {
+    _id: '64a52b1d2abb086865dcb54d',
+  };
 
-//   next();
-// });
+  next();
+});
 
 app.use(routes);
 // console.log(mongoose);

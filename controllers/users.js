@@ -70,8 +70,12 @@ const getUserById = (req, res) => { // *
 // };
 
 const createUser = (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password) { // чтобы не нагружать сервер проверим сразу наличие полей
+    return next(new Error('Введите данные!'));
+  }
+  // console.log(req.user);
   bcrypt.hash(req.body.password, 10) // пароль - только строка
-  // соль стоит передавать в виде переменной и хранить ее отдельно при помощи специального модуля
     .then((hash) => {
       User.create({
         ...req.body,
@@ -180,6 +184,10 @@ const login = (req, res, next) => {
   // Вытащить email и password
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return next(new Error('Введите данные!'));
+  }
+
   // Проверить существует ли пользователь с таким email
   User.findOne({ email })
     .select('+password')
@@ -193,7 +201,6 @@ const login = (req, res, next) => {
             const jwt = jsonWebToken.sign({
               _id: user._id,
             }, 'JWT.SECRET');
-            // console.log('jwt', jwt);
             // прикрепить его к куке
             res.cookie('jwt', jwt, {
               maxAge: 360000,
@@ -205,7 +212,7 @@ const login = (req, res, next) => {
             res.send({ data: user.toJSON() });
           } else {
             // Если не совпадает -- вернуть ошибку
-            res.status(403).send({ message: 'Неправильный пароль' });
+            res.status(403).send({ message: 'Invalid email or password' }); //Неправильный пароль
           }
         });
     })
