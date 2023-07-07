@@ -53,49 +53,37 @@ const login = (req, res, next) => {
             res.send({ data: user.toJSON() });
           } else {
             // Если не совпадает - вернуть ошибку
-            res.status(403).send({ message: 'Invalid email or password' }); // Неправильный пароль
+            return res.status(403).send({ message: 'Invalid email or password' }); // Неправильный пароль
           }
         });
     })
     .catch(next);
 };
 
-const getUsers = (req, res) => { // *
+const getUsers = (req, res, next) => { // *
   User.find({})
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
-    .catch((err) => {
-      res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
-    });
+    .catch(next);
 };
 
-const getUserById = (req, res) => { // *
+const getUserById = (req, res, next) => { // *
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+        return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
           message: 'User ID is not found',
         });
-      } else if (err.name === 'CastError') {
-        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
-        // return;
-      } else {
-        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+      } if (err.name === 'CastError') {
+        return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
+      return next(err);
     });
 };
 
-const changeProfileData = (req, res) => { // *
+const changeProfileData = (req, res, next) => { // *
   User.findByIdAndUpdate(
     req.user._id,
     {
@@ -130,7 +118,7 @@ const changeProfileData = (req, res) => { // *
     });
 };
 
-const changeProfileAvatar = (req, res) => { // *
+const changeProfileAvatar = (req, res, next) => { // *
   User.findByIdAndUpdate(
     req.user._id,
     {
