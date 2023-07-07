@@ -1,13 +1,64 @@
 /* eslint-disable no-console */
 const http2 = require('http2').constants;
 const bcrypt = require('bcrypt');
-// const jwt = require('jsonwebtoken');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
 
-// const ValidationError = require('../errors/ValidationError');
-// const InternalServerError = require('../errors/InternalServerError');
-// const NotFound = require('../errors/NotFound');
+const createUser = (req, res, next) => {
+  const { email, password } = req.body;
+  // чтобы не нагружать сервер проверим сразу наличие полей
+  if (!email || !password) {
+    return next(new Error('Введите данные!'));
+  }
+  bcrypt.hash(req.body.password, 10) // пароль - только строка
+    .then((hash) => {
+      User.create({
+        ...req.body,
+        password: hash,
+      })
+        .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
+        .catch(next);
+    })
+    .catch(next);
+};
+
+const login = (req, res, next) => {
+  // Вытащить email и password
+  const { email, password } = req.body;
+  // чтобы не нагружать сервер проверим сразу наличие полей
+  if (!email || !password) {
+    return next(new Error('Введите данные!'));
+  }
+  // Проверить существует ли пользователь с таким email
+  User.findOne({ email })
+    .select('+password')
+    .orFail(() => new Error('Пользователь не найден'))
+    .then((user) => {
+      // Проверить совпадает ли пароль
+      bcrypt.compare(password, user.password)
+        .then((isValidUser) => {
+          if (isValidUser) {
+            // создать JWT
+            const jwt = jsonWebToken.sign({
+              _id: user._id,
+            }, process.env['JWT.SECRET']);
+            // переменная окружения хранит секретое слово для создания куки
+            // прикрепить его к куке
+            res.cookie('jwt', jwt, {
+              maxAge: 360000,
+              httpOnly: true,
+              sameSite: true,
+            });
+            // Если совпадает - вернуть пользователя без данных пароля
+            res.send({ data: user.toJSON() });
+          } else {
+            // Если не совпадает - вернуть ошибку
+            res.status(403).send({ message: 'Invalid email or password' }); // Неправильный пароль
+          }
+        });
+    })
+    .catch(next);
+};
 
 const getUsers = (req, res) => { // *
   User.find({})
@@ -18,7 +69,6 @@ const getUsers = (req, res) => { // *
         err: err.message,
         stack: err.stack,
       });
-      // }
     });
 };
 
@@ -43,48 +93,6 @@ const getUserById = (req, res) => { // *
         });
       }
     });
-};
-
-// старый код
-// const createUser = (req, res, next) => { // добавить next в аргументы и вместо catch
-//   bcrypt.hash(req.body.password, 10) // пароль - только строка! 31min
-//   // соль стоит передавать в виде переменной и хранить ее отдельно при помощи специального модуля
-//     .then((hash) => User.create({
-//       ...req.body,
-//       password: hash,
-//     })
-//       .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
-//       .catch((err) => {
-//         if (err.name === 'ValidationError') {
-//           res.status(http2.HTTP_STATUS_BAD_REQUEST)
-//             .send({ message: 'One of the fields or more is not filled correctly' });
-//           return;
-//         }
-//         res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-//           .send({
-//             message: 'Internal Server Error',
-//             err: err.message,
-//             stack: err.stack,
-//           });
-//       }));
-// };
-
-const createUser = (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) { // чтобы не нагружать сервер проверим сразу наличие полей
-    return next(new Error('Введите данные!'));
-  }
-  // console.log(req.user);
-  bcrypt.hash(req.body.password, 10) // пароль - только строка
-    .then((hash) => {
-      User.create({
-        ...req.body,
-        password: hash,
-      })
-        .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
-        .catch(next);
-    })
-    .catch(next);
 };
 
 const changeProfileData = (req, res) => { // *
@@ -149,74 +157,6 @@ const changeProfileAvatar = (req, res) => { // *
         });
       }
     });
-};
-
-// старый код
-// const login = (req, res) => { // продолжение
-//   // console.log(req, res);
-//   const { email, password } = req.body;
-
-//   User.findOne({ email })
-//     .then((user) => {
-//       if (!user) {
-//         return Promise.reject(new Error('Неправильные почта или пароль'));
-//       }
-//       // password передан польз user.password найден в базе
-//       return bcrypt.compare(password, user.password);
-//     })
-//     .then((matched) => { // true/false
-//       if (!matched) {
-//         // хеши не совпали — отклоняем промис
-//         return Promise.reject(new Error('Неправильные почта или пароль')); // 403
-//       }
-//       // аутентификация успешна
-//       return res.send({ message: 'Всё верно!' });// надо отправить jwt
-//     })
-//     .catch((err) => {
-//       res
-//         .status(401)
-//         .send({ message: err.message });
-//     });
-// };
-
-// новый код
-const login = (req, res, next) => {
-  // Вытащить email и password
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return next(new Error('Введите данные!'));
-  }
-
-  // Проверить существует ли пользователь с таким email
-  User.findOne({ email })
-    .select('+password')
-    .orFail(() => new Error('Пользователь не найден'))
-    .then((user) => {
-      // Проверить совпадает ли пароль
-      bcrypt.compare(password, user.password)
-        .then((isValidUser) => {
-          if (isValidUser) {
-            // создать JWT
-            const jwt = jsonWebToken.sign({
-              _id: user._id,
-            }, 'JWT.SECRET');
-            // прикрепить его к куке
-            res.cookie('jwt', jwt, {
-              maxAge: 360000,
-              httpOnly: true,
-              sameSite: true,
-            });
-
-            // Если совпадает -- вернуть пользователя
-            res.send({ data: user.toJSON() });
-          } else {
-            // Если не совпадает -- вернуть ошибку
-            res.status(403).send({ message: 'Invalid email or password' }); //Неправильный пароль
-          }
-        });
-    })
-    .catch(next);
 };
 
 module.exports = {
