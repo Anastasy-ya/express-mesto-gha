@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    // select: false, // запрет обратной отправки не работает
+    select: false, // запрет обратной отправки не работает
     required: true,
     validate: [isStrongPassword, 'Password is too simple!'],
     // хавает любой пароль потому что предварительно хеширует его, это проблема

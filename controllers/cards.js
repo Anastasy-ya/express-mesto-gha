@@ -4,6 +4,7 @@ const Card = require('../models/card');
 // const ValidationError = require('../errors/ValidationError');
 // const InternalServerError = require('../errors/InternalServerError');
 // const NotFound = require('../errors/NotFound');
+const JsonWebTokenError = require('../errors/JsonWebTokenError');
 
 const getCards = (req, res, next) => { // *
   // console.log(http2);
@@ -48,31 +49,28 @@ const createCard = (req, res, next) => {
 
 const deleteCardById = (req, res, next) => {
 // непроверенный код запрещаем удаление кому попало
-    Card.findById(req.params.id)
-      .orFail(() => new Error('Not found'))
-      .then((card) => {
-        if (!card.owner.equals(req.user._id)) { //
-          // выдать ошибку, проверить переменные
-          console.log('та самая ошибка')
-        } else { //
-        res.status(http2.HTTP_STATUS_OK).send(card);
-        }//
-      })
-      .catch((err) => {
-        if (err.message === 'Not found') {
-          res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-            message: 'Card ID is not found',
-          });
-        } else if (err.name === 'CastError') {
-          res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
-            message: 'Invalid user ID',
-            err: err.message,
-            stack: err.stack,
-          });
-        // return;
-        } else return next(err);
-      });
-  }
+  Card.findById(req.params.id)
+    .orFail(() => new Error('Not found'))
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) { //
+        // выдать ошибку, проверить переменные
+        return new JsonWebTokenError(); // проверить код ошибки
+      }
+      res.status(http2.HTTP_STATUS_OK).send(card);
+    })
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+          message: 'Card ID is not found',
+        });
+      } else if (err.name === 'CastError') {
+        res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
+          message: 'Invalid user ID',
+          err: err.message,
+          stack: err.stack,
+        });
+      } else return next(err);
+    });
 };
 
 const addLike = (req, res, next) => Card.findByIdAndUpdate(

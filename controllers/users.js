@@ -3,6 +3,7 @@ const http2 = require('http2').constants;
 const bcrypt = require('bcrypt');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
+// const ConflictError = require('../errors/ConflictError');
 
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -67,6 +68,7 @@ const getUsers = (req, res, next) => { // *
 };
 
 const getUserById = (req, res, next) => { // *
+  // console.log(req.params.id);
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
