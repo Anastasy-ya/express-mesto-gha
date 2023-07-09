@@ -1,7 +1,6 @@
 const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
 const http2 = require('http2').constants;
-
+const { celebrate, Joi } = require('celebrate');
 const {
   createUser,
   login,
@@ -23,12 +22,9 @@ router.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/),
+    avatar: Joi.string().pattern(/[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+/),
   }),
 }), createUser); // регистрация
-
-router.post('/signin', login); // авторизация
-router.post('/signup', createUser); // регистрация
 
 router.use(auth); // миддлвара проверяет наличие кук, располагается перед защищенными роутами
 
