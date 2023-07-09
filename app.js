@@ -14,7 +14,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/error');
-const getData = require('./controllers/users');
+// const getData = require('./controllers/users');
 
 // подключение к серверу монго
 mongoose.connect(process.env['db.Link'], {
@@ -43,7 +43,7 @@ app.use(cookieParser());
 
 app.use(routes);
 // console.log(getData.getUserData);
-app.get('/users/me', getData.getUserData);
+// app.get('/users/me', getData.getUserData);
 app.use(errorHandler); // централизованный обработчик ошибок
 
 app.listen(PORT, () => {

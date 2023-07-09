@@ -3,6 +3,7 @@ class JsonWebTokenError extends Error { // 401
     super(message);
     this.name = 'Access denied!';
     this.statusCode = 401;
+    // this.message = message;
   }
 }
 
