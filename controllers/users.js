@@ -72,10 +72,10 @@ const getUsers = (req, res, next) => { // *
     .catch(next);
 };
 // if (err.message === 'Not found') {
-      //   return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-      //     message: 'User ID is not found',
-      //   });
-      // }
+//   return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+//     message: 'User ID is not found',
+//   });
+// }
 
 const getUserById = (req, res, next) => { // *
   // console.log(req.params.id);
