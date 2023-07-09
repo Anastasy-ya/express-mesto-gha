@@ -3,33 +3,16 @@
 // const http2 = require('http2').constants;
 
 // const ValidationError = require('../errors/ValidationError');
-const InternalServerError = require('../errors/InternalServerError');
-const JsonWebTokenError = require('../errors/JsonWebTokenError');
+// const InternalServerError = require('../errors/InternalServerError');
+// const JsonWebTokenError = require('../errors/JsonWebTokenError');
 // const NotFound = require('../errors/NotFound');
 // const JsonWebToken = require('../errors/JsonWebTokenError');
 
 const errorHandler = (err, req, res, next) => {
-  // // let error;
-  const { statusCode, message } = err;
-  // // try {
+  const { status = 500, message } = err;
 
-  //   res.send(
-  //     if (err.message === 'jwt must be provided') {
-  //     error = new JsonWebTokenError();
-  //   } if (err.statusCode === 500) {
-  //     error = new InternalServerError();
-  //   }
-  //   error = new Error(err));
-  // // } catch (error) {
-  //   res.send(error);
-
-  //   next();
-  // }
-
-  // return next();
-
-  res.status(statusCode).send({
-    message: statusCode === 500 ? 'InternalServerError' : message,
+  res.status(status).send({
+    message: status === 500 ? 'InternalServerError' : message,
   });
 
   return next();
