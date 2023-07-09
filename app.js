@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser'); // был заменен на express.json
 // создает наполнение req.body
 const cors = require('cors');
+const { errors } = require('celebrate');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/error');
 // const getData = require('./controllers/users');
@@ -28,22 +29,14 @@ app.use(cors({
   methods: ['GET', 'PUT', 'POST', 'PATCH', 'DEL'],
 }));
 
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); // создает наполнение req.body
+
 app.use(cookieParser());
 
-// app.use((req, res, next) => { // захардкодить id нового юзера
-//   req.user = {
-//     _id: '64a52b1d2abb086865dcb54d',
-//   };
-
-//   next();
-// });
-
 app.use(routes);
-// console.log(getData.getUserData);
-// app.get('/users/me', getData.getUserData);
+
+app.use(errors()); // обработчик ошибок celebrate
+
 app.use(errorHandler); // централизованный обработчик ошибок
 
 app.listen(PORT, () => {
