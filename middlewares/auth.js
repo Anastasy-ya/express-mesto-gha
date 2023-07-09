@@ -4,7 +4,7 @@ const JsonWebTokenError = require('../errors/JsonWebTokenError');
 
 const auth = (req, res, next) => {
   // const { authorization } = req.headers;
-  // применяется если данные переданы в заголовке, а у нас они в body. Но это не точно
+  // применяется если данные при регистрации переданы в заголовке, а у нас они в body.
   // if (!authorization || !authorization.startsWith('Bearer')) {
   //   throw new JsonWebTokenError('Unauthorized!');
   // }
@@ -14,12 +14,12 @@ const auth = (req, res, next) => {
 
   try {
     payload = jwt.verify(token, process.env['JWT.SECRET']);
+    req.user = payload;
+    return req.user;
   } catch (err) {
-    throw new JsonWebTokenError('Unauthorized!');
+    return next(new JsonWebTokenError('Unauthorized!'));
   }
-
-  req.user = payload;
-  next();
+  // next(err);
 };
 
 module.exports = auth;
