@@ -8,8 +8,8 @@ const {
 const auth = require('../middlewares/auth');
 const cardRoutes = require('./cards');
 const userRoutes = require('./users');
+const { celebrate, Joi } = require('celebrate');
 
-<<<<<<< HEAD
 router.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -25,10 +25,9 @@ router.post('/signup', celebrate({
     avatar: Joi.string().pattern(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/),
   }),
 }), createUser); // регистрация
-=======
+
 router.post('/signin', login); // авторизация
 router.post('/signup', createUser); // регистрация
->>>>>>> parent of 39c0750 (14 пр в процессе)
 
 router.use(auth); // миддлвара проверяет наличие кук, располагается перед защищенными роутами
 
