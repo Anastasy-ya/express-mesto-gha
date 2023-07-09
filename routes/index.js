@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
 const http2 = require('http2').constants;
 
 const {
@@ -9,7 +10,6 @@ const {
 const auth = require('../middlewares/auth');
 const cardRoutes = require('./cards');
 const userRoutes = require('./users');
-const { celebrate, Joi } = require('celebrate');
 
 router.post('/signin', celebrate({
   body: Joi.object().keys({
