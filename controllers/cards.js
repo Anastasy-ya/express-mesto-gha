@@ -4,7 +4,7 @@ const Card = require('../models/card');
 const ValidationError = require('../errors/ValidationError');
 // const InternalServerError = require('../errors/InternalServerError');
 const NotFound = require('../errors/NotFound');
-const JsonWebTokenError = require('../errors/JsonWebTokenError');
+// const JsonWebTokenError = require('../errors/JsonWebTokenError');
 const Forbidden = require('../errors/Forbidden');
 
 const getCards = (req, res, next) => { // *
