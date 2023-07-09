@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
-
+// const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env; // переменная для порта
