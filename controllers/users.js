@@ -3,7 +3,9 @@ const http2 = require('http2').constants;
 const bcrypt = require('bcrypt');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
-// const ConflictError = require('../errors/ConflictError');
+const ConflictError = require('../errors/ConflictError');
+const NotFound = require('../errors/NotFound');
+// const getUser = require('../controllers/cards'); //
 
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -18,7 +20,12 @@ const createUser = (req, res, next) => {
         password: hash,
       })
         .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
-        .catch(next);
+        .catch((err) => {
+          if (err.code === 11000) {
+            return new ConflictError();
+          }
+          return next(err);
+        });
     })
     .catch(next);
 };
@@ -60,6 +67,39 @@ const login = (req, res, next) => {
     })
     .catch(next);
 };
+
+const getUserData = (req, res, next) => { // *
+  console.log('НАЧАЛА ВЫПОЛНЯТЬСЯ ПРОГРАММА');
+
+  User.findById(req.user._id)
+    .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
+    // и потом выполнение кода перейдет в catch, где ошибка будет обработана
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+          message: 'User ID is not found',
+        });
+      } if (err.name === 'CastError') {
+        // console.log(err);
+        return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
+      }
+      return next(err);
+    });
+};
+
+// const getMyData = (req, res, next) => { // users/me
+//   console.log('начала выполняться функция');
+//   // User.findById(req.user._id)
+//   //   .then((user) => {
+//   //     if (!user) {
+//   //       return new NotFound();
+//   //     }
+//   //     res.send(user);
+//   //     console.log('user', user);
+//   //   })
+//   //   .catch(next);
+// };
 
 const getUsers = (req, res, next) => { // *
   User.find({})
@@ -151,6 +191,7 @@ const changeProfileAvatar = (req, res, next) => { // *
 
 module.exports = {
   getUsers,
+  getUserData,
   getUserById,
   createUser,
   changeProfileData,
