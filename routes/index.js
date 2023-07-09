@@ -33,5 +33,6 @@ router.use('/users', userRoutes);
 router.use('*', (req, res) => {
   res.status(http2.HTTP_STATUS_NOT_FOUND).send({ message: 'Page not Found' });
 });
+// console.log(http2.HTTP_STATUS_NOT_FOUND);
 
 module.exports = router;
