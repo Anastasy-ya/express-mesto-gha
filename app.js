@@ -5,7 +5,7 @@ const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env; // переменная для порта
-const app = express(process.env.JWT_SECRET);
+const app = express(); // process.env.JWT_SECRET
 const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser'); // был заменен на express.json
 // создает наполнение req.body
