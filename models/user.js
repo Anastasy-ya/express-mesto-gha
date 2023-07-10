@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     // required: true,
     minlength: 2,
     maxlength: 30,
-    default: 'Сын маминой подруги',
+    default: 'Исследователь',
   },
   avatar: { // Invalid avatar URL
     type: String, // mongoose.SchemaTypes.Url
