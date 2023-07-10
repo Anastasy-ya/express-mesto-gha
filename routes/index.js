@@ -1,6 +1,5 @@
 const router = require('express').Router();
-const http2 = require('http2').constants;
-// const { celebrate, Joi, errors } = require('celebrate');
+const NotFound = require('../errors/NotFound');
 const {
   createUser,
   login,
@@ -20,8 +19,8 @@ router.use(auth); // миддлвара проверяет наличие кук
 
 router.use('/cards', cardRoutes); // получает роуты, в которых содержатся запросы и ответы на них
 router.use('/users', userRoutes);
-router.use('*', (req, res) => {
-  res.status(http2.HTTP_STATUS_NOT_FOUND).send({ message: 'Page not Found' });
+router.use('*', (req, res, next) => {
+  throw next(new NotFound('Page not found'));
 });
 
 module.exports = router;

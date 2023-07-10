@@ -2,9 +2,7 @@
 const http2 = require('http2').constants;
 const Card = require('../models/card');
 const ValidationError = require('../errors/ValidationError');
-// const InternalServerError = require('../errors/InternalServerError');
 const NotFound = require('../errors/NotFound');
-// const JsonWebTokenError = require('../errors/JsonWebTokenError');
 const Forbidden = require('../errors/Forbidden');
 
 const getCards = (req, res, next) => {
@@ -18,13 +16,7 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(http2.HTTP_STATUS_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // console.log(http2.HTTP_STATUS_BAD_REQUEST);
-        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
-        //   message: 'One of the fields or more is not filled correctly',
-        //   err: err.message,
-        //   stack: err.stack,
-        // });
-        return next(new ValidationError('Invalid user ID'));
+        return next(new ValidationError('Invalid card ID'));
       }
       return next(err);
     });
@@ -32,10 +24,10 @@ const createCard = (req, res, next) => {
 
 const deleteCardById = (req, res, next) => {
   Card.findById(req.params.id)
-    .orFail(new NotFound('Card is not found')) // не работает
+    .orFail(new NotFound('Card is not found'))
     .then((card) => {
       if (card.owner.toString() !== req.user.id) {
-        throw new Forbidden('Access is denied'); // работает но сообщение не отправляется
+        throw new Forbidden('Access is denied');
       }
       return Card.findByIdAndRemove(req.params.id);
     })
@@ -43,7 +35,6 @@ const deleteCardById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Invalid card ID'));
-        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
       return next(err);
     });
@@ -57,15 +48,8 @@ const addLike = (req, res, next) => Card.findByIdAndUpdate(
   .orFail(() => new NotFound('Card ID is not found'))
   .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
   .catch((err) => {
-    // if (err.message === 'Not found') {
-    //   return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-    //     message: 'Card is not found',
-    //   });
-    // }
     if (err.name === 'CastError') {
-      return next(new ValidationError('Invalid user ID'));
-      // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
-      // return;
+      return next(new ValidationError('Invalid card ID'));
     } return next(err);
   });
 
@@ -80,12 +64,6 @@ const removeLike = (req, res, next) => {
     .orFail(() => new NotFound('Card ID is not found'))
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-      //   //   message: 'Card is not found',
-      //   // });
-      //   throw next(new NotFound('Card ID is not found'));
-      // }
       if (err.name === 'CastError') {
         // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid card ID' });
         return next(new ValidationError('Invalid card ID'));
@@ -94,7 +72,6 @@ const removeLike = (req, res, next) => {
 };
 
 module.exports = {
-  // getCardById, // удалить
   createCard,
   getCards,
   deleteCardById,

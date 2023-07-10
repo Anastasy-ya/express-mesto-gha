@@ -56,9 +56,7 @@ const login = (req, res, next) => {
               {
                 id: user._id,
               },
-              // process.env.JWT_SECRET);
               NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-              // 'secretWord',
             );
             // переменная окружения хранит секретое слово для создания куки
             // прикрепить его к куке
@@ -80,18 +78,15 @@ const login = (req, res, next) => {
 const getUserData = (req, res, next) => { // users/me
   console.log(req.user);
   User.findById(req.user.id)
-    .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
+    .orFail(() => new Error('Not found'))
+    // если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-        //   message: 'User ID is not found',
-        // });
         throw new NotFound('User ID is not found');
       } if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
-        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
       return next(err);
     });
@@ -103,21 +98,17 @@ const getUsers = (req, res, next) => { // users
     .catch(next);
 };
 
-const getUserById = (req, res, next) => { // users/:id
-  // console.log(req.params.id);
+const getUserById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
+    .orFail(() => new Error('Not found'))
+    // если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-        //   message: 'User ID is not found',
-        // });
         throw next(new NotFound('User ID is not found'));
       } if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
-        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
       return next(err);
     });
@@ -142,24 +133,11 @@ const changeProfileData = (req, res, next) => { // *
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        // res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-        //   message: 'Invalid user ID', // 400
-        // });
         throw new NotFound('User ID is not found');
       } else if (err.name === 'ValidationError') {
-        // res.status(http2.HTTP_STATUS_BAD_REQUEST)
-        //   .send({ message: 'One of the fields or more is not filled correctly' });
-      // return;
         return next(new ValidationError('Invalid user ID'));
       }
-      // } else {
-      //   res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-      //     message: 'Internal Server Error',
-      //     err: err.message,
-      //     stack: err.stack,
-      //   });
-      // }
-      return next(err); // нов
+      return next(err);
     });
 };
 
@@ -176,21 +154,11 @@ const changeProfileAvatar = (req, res, next) => { // *
     },
   )
     .orFail(() => new NotFound('User ID is not found'))
-    .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        // res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-        //   message: 'Invalid user ID',
-        // });
         throw new NotFound('User ID is not found');
       }
-      // else {
-      //   res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-      //     message: 'Internal Server Error',
-      //     err: err.message,
-      //     stack: err.stack,
-      //   });
-      // }
       return next(err);
     });
 };

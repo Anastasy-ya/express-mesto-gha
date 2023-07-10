@@ -14,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     validate: [isURL, 'Invalid avatar URL'],
   },
   owner: {
-    type: mongoose.Types.ObjectId, // mongoose.Types.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'user',
   },
