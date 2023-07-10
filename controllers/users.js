@@ -147,9 +147,10 @@ const changeProfileData = (req, res, next) => { // *
         // });
         throw new NotFound('User ID is not found');
       } else if (err.name === 'ValidationError') {
-        res.status(http2.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'One of the fields or more is not filled correctly' });
+        // res.status(http2.HTTP_STATUS_BAD_REQUEST)
+        //   .send({ message: 'One of the fields or more is not filled correctly' });
       // return;
+        return next(new ValidationError('Invalid user ID'));
       }
       // } else {
       //   res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
