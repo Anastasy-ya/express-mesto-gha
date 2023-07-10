@@ -142,20 +142,22 @@ const changeProfileData = (req, res, next) => { // *
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-          message: 'Invalid user ID', // 400
-        });
+        // res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+        //   message: 'Invalid user ID', // 400
+        // });
+        throw new NotFound('User ID is not found');
       } else if (err.name === 'ValidationError') {
         res.status(http2.HTTP_STATUS_BAD_REQUEST)
           .send({ message: 'One of the fields or more is not filled correctly' });
       // return;
-      } else {
-        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
       }
+      // } else {
+      //   res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
+      //     message: 'Internal Server Error',
+      //     err: err.message,
+      //     stack: err.stack,
+      //   });
+      // }
       return next(err); // нов
     });
 };
@@ -172,20 +174,23 @@ const changeProfileAvatar = (req, res, next) => { // *
       upsert: false,
     },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFound('User ID is not found'))
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-          message: 'Invalid user ID',
-        });
-      } else {
-        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        // res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+        //   message: 'Invalid user ID',
+        // });
+        throw new NotFound('User ID is not found');
       }
+      // else {
+      //   res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
+      //     message: 'Internal Server Error',
+      //     err: err.message,
+      //     stack: err.stack,
+      //   });
+      // }
+      return next(err);
     });
 };
 
