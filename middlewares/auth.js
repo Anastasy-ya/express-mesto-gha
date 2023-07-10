@@ -5,7 +5,7 @@ const JsonWebTokenError = require('../errors/JsonWebTokenError');
 
 const { NODE_ENV, JWT_SECRET } = process.env; //
 
-const auth = (req, res, next) => {
+const auth = (req, _, next) => {
   // const { authorization } = req.headers;
   // применяется если данные при регистрации переданы в заголовке, а у нас они в body.
   // if (!authorization || !authorization.startsWith('Bearer')) {

@@ -5,7 +5,7 @@ const ValidationError = require('../errors/ValidationError');
 const NotFound = require('../errors/NotFound');
 const Forbidden = require('../errors/Forbidden');
 
-const getCards = (req, res, next) => {
+const getCards = (_, res, next) => {
   Card.find({})
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch(next);

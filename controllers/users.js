@@ -78,21 +78,22 @@ const login = (req, res, next) => {
 const getUserData = (req, res, next) => { // users/me
   console.log(req.user);
   User.findById(req.user.id)
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFound('User ID is not found'))
     // если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        throw new NotFound('User ID is not found');
-      } if (err.name === 'CastError') {
+      // if (err.message === 'Not found') {
+      //   throw new NotFound('User ID is not found');
+      // }
+      if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
       }
       return next(err);
     });
 };
 
-const getUsers = (req, res, next) => { // users
+const getUsers = (_, res, next) => { // users
   User.find({})
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch(next);
@@ -100,14 +101,15 @@ const getUsers = (req, res, next) => { // users
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFound('User ID is not found'))
     // если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        throw next(new NotFound('User ID is not found'));
-      } if (err.name === 'CastError') {
+      // if (err.message === 'Not found') {
+      //   throw next(new NotFound('User ID is not found'));
+      // }
+      if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
       }
       return next(err);
@@ -129,12 +131,13 @@ const changeProfileData = (req, res, next) => { // *
       upsert: false,
     },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFound('User ID is not found'))
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        throw new NotFound('User ID is not found');
-      } else if (err.name === 'ValidationError') {
+      // if (err.message === 'Not found') {
+      //   throw new NotFound('User ID is not found');
+      // } else
+      if (err.name === 'ValidationError') {
         return next(new ValidationError('Invalid user ID'));
       }
       return next(err);
