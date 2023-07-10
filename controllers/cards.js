@@ -65,7 +65,6 @@ const removeLike = (req, res, next) => {
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid card ID' });
         return next(new ValidationError('Invalid card ID'));
       } return next(err);
     });

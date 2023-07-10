@@ -83,9 +83,6 @@ const getUserData = (req, res, next) => { // users/me
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   throw new NotFound('User ID is not found');
-      // }
       if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
       }
@@ -106,9 +103,6 @@ const getUserById = (req, res, next) => {
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   throw next(new NotFound('User ID is not found'));
-      // }
       if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
       }
@@ -134,9 +128,6 @@ const changeProfileData = (req, res, next) => { // *
     .orFail(() => new NotFound('User ID is not found'))
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
-      // if (err.message === 'Not found') {
-      //   throw new NotFound('User ID is not found');
-      // } else
       if (err.name === 'ValidationError') {
         return next(new ValidationError('Invalid user ID'));
       }
