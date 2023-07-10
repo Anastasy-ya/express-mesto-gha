@@ -5,7 +5,7 @@ const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env; // переменная для порта
-const app = express(process.env.JWT_SECRET, process.env.NODE_ENV); // process.env.JWT_SECRET
+const app = express(); // process.env.JWT_SECRET, process.env.NODE_ENV
 const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser'); // был заменен на express.json
 // создает наполнение req.body
@@ -25,8 +25,6 @@ app.use(cors({
   credentials: true, // разрешить куки
   methods: ['GET', 'PUT', 'POST', 'PATCH', 'DEL'],
 }));
-
-// console.log(process.env);
 
 // app.use(bodyParser.json()); // был заменен на express.json
 // app.use(bodyParser.urlencoded({ extended: true }));

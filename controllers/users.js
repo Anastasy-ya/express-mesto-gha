@@ -9,7 +9,7 @@ const ValidationError = require('../errors/ValidationError');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
-// const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -51,13 +51,13 @@ const login = (req, res, next) => {
       bcrypt.compare(password, user.password)
         .then((isValidUser) => {
           if (isValidUser) {
-            const { NODE_ENV, JWT_SECRET } = process.env;
             // создать JWT
-            const jwt = jsonWebToken.sign({
-              _id: user._id,
-            },
-            // process.env.JWT_SECRET);
-            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'
+            const jwt = jsonWebToken.sign(
+              {
+                _id: user._id,
+              },
+              // process.env.JWT_SECRET);
+              NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
             );
             // переменная окружения хранит секретое слово для создания куки
             // прикрепить его к куке
