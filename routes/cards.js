@@ -1,20 +1,20 @@
 const router = require('express').Router();
 const {
-  // getCardById, // удалить
   createCard,
   getCards,
   deleteCardById,
   addLike,
   removeLike,
 } = require('../controllers/cards');
+const {
+  createCardValidation,
+  CardIdValidation,
+} = require('../middlewares/validation');
 
 router.get('/', getCards);
-router.post('/', createCard);
-router.delete('/:id', deleteCardById);
+router.post('/', createCardValidation, createCard);
+router.delete('/:id', CardIdValidation, deleteCardById);
 router.put('/:id/likes', addLike);
 router.delete('/:id/likes', removeLike);
-
-// динамический роут удалить
-// router.get('/cards/:id', getCardById);
 
 module.exports = router;
