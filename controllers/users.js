@@ -113,24 +113,24 @@ const changeProfileData = (req, res, next) => { // *
   )
     .orFail(() => new Error('Not found'))
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
-    .catch((err) => next(err));
-  // {
-  //   if (err.message === 'Not found') {
-  //     res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-  //       message: 'Invalid user ID', // 400
-  //     });
-  //   } else if (err.name === 'ValidationError') {
-  //     res.status(http2.HTTP_STATUS_BAD_REQUEST)
-  // .send({ message: 'One of the fields or more is not filled correctly' });
-  //     // return;
-  //   } else {
-  //     res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
-  //       message: 'Internal Server Error',
-  //       err: err.message,
-  //       stack: err.stack,
-  //     });
-  //   }
-  // });
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+          message: 'Invalid user ID', // 400
+        });
+      } else if (err.name === 'ValidationError') {
+        res.status(http2.HTTP_STATUS_BAD_REQUEST)
+          .send({ message: 'One of the fields or more is not filled correctly' });
+      // return;
+      } else {
+        res.status(http2.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
+          message: 'Internal Server Error',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
+      return next(err); // нов
+    });
 };
 
 const changeProfileAvatar = (req, res, next) => { // *
