@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { isEmail, isURL, isStrongPassword } = require('validator');
+const { isEmail, isURL } = require('validator'); // , isStrongPassword
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -32,8 +32,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     select: false, // запрет обратной отправки не работает
     required: true,
-    validate: [isStrongPassword, 'Password is too simple!'],
-    // хавает любой пароль потому что предварительно хеширует его, это проблема
+    // validate: [isStrongPassword, 'Password is too simple!'],
   },
 });
 

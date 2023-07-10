@@ -4,13 +4,16 @@ const bcrypt = require('bcrypt');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError');
+const JsonWebTokenError = require('../errors/JsonWebTokenError');
+const ValidationError = require('../errors/ValidationError');
+const Forbidden = require('../errors/Forbidden');
 // const NotFound = require('../errors/NotFound');
 
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
   // чтобы не нагружать сервер проверим сразу наличие полей
   if (!email || !password) {
-    return next(new Error('Введите данные!'));
+    return next(new ValidationError('One of the fields or more is not filled'));
   }
   return bcrypt.hash(req.body.password, 10) // пароль - только строка
     .then((hash) => {
@@ -20,8 +23,9 @@ const createUser = (req, res, next) => {
       })
         .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
         .catch((err) => {
+          console.log(err);
           if (err.code === 11000) {
-            return new ConflictError();
+            return next(new ConflictError('User already exists')); // 409
           }
           return next(err);
         });
@@ -34,12 +38,12 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   // чтобы не нагружать сервер проверим сразу наличие полей
   if (!email || !password) {
-    return next(new Error('Введите данные!'));
+    return next(new ValidationError('One of the fields or more is not filled'));
   }
   // Проверить существует ли пользователь с таким email
   return User.findOne({ email })
     .select('+password')
-    .orFail(() => new Error('Пользователь не найден'))
+    .orFail(() => new JsonWebTokenError('User not found'))
     .then((user) => {
       // Проверить совпадает ли пароль
       bcrypt.compare(password, user.password)
@@ -60,7 +64,7 @@ const login = (req, res, next) => {
             return res.send({ data: user.toJSON() });
           }
           // Если не совпадает - вернуть ошибку
-          return res.status(403).send({ message: 'Invalid email or password' }); // Неправильный пароль
+          return next(new Forbidden('Invalid email or password')); // 403 Неправильный пароль
         });
     })
     .catch(next);
@@ -69,7 +73,7 @@ const login = (req, res, next) => {
 const getUsers = (req, res, next) => { // *
   User.find({})
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
-    .catch(next);
+    .catch((err) => console.log(err)); // next
 };
 
 const getUserById = (req, res, next) => { // *
