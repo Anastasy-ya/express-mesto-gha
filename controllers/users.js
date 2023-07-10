@@ -9,7 +9,7 @@ const ValidationError = require('../errors/ValidationError');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
-// const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -57,8 +57,8 @@ const login = (req, res, next) => {
                 _id: user._id,
               },
               // process.env.JWT_SECRET);
-              // NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-              'secretWord',
+              NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+              // 'secretWord',
             );
             // переменная окружения хранит секретое слово для создания куки
             // прикрепить его к куке
