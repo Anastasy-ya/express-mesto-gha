@@ -37,7 +37,7 @@ const deleteCardById = (req, res, next) => {
       }
       return Card.findByIdAndRemove(req.params.id);
     })
-    .then(() => res.send('Card removed'))
+    .then(() => res.send({ message: 'Card removed' }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
@@ -73,7 +73,7 @@ const removeLike = (req, res, next) => {
       new: true,
     },
   )
-    .orFail(() => new Error('Not  found'))
+    .orFail(() => new Error('Not found'))
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
       if (err.message === 'Not found') {
