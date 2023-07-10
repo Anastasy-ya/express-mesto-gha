@@ -9,6 +9,8 @@ const ValidationError = require('../errors/ValidationError');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
   // чтобы не нагружать сервер проверим сразу наличие полей
@@ -52,7 +54,7 @@ const login = (req, res, next) => {
             // создать JWT
             const jwt = jsonWebToken.sign({
               _id: user._id,
-            }, process.env['JWT.SECRET']);
+            }, process.env.JWT_SECRET);
             // переменная окружения хранит секретое слово для создания куки
             // прикрепить его к куке
             res.cookie('jwt', jwt, {
