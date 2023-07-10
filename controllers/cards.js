@@ -29,18 +29,16 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCardById = (req, res, next) => {
-  // console.log('req.params.id', req.params.id);
-  Card.findById(Number(req.params.id))
+  Card.findById(req.params.id)
     .orFail(new NotFound('Card is not found')) // не работает
     .then((card) => {
-      if (card.owner.toString() !== req.user._id) {
+      if (card.owner.toString() !== req.user.id) {
         throw new Forbidden('Access is denied'); // работает но сообщение не отправляется
       }
       return Card.findByIdAndRemove(req.params.id);
     })
-    .then((card) => res.send(card))
+    .then(() => res.send('Card removed'))
     .catch((err) => {
-      // console.log(err);
       if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
         // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
@@ -51,7 +49,7 @@ const deleteCardById = (req, res, next) => {
 
 const addLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.id,
-  { $addToSet: { likes: req.user._id } },
+  { $addToSet: { likes: req.user.id } },
   { new: true },
 )
   .orFail(() => new Error('Not found'))
@@ -70,7 +68,7 @@ const addLike = (req, res, next) => Card.findByIdAndUpdate(
 const removeLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user.id } },
     {
       new: true,
     },
