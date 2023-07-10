@@ -51,10 +51,14 @@ const login = (req, res, next) => {
       bcrypt.compare(password, user.password)
         .then((isValidUser) => {
           if (isValidUser) {
+            const { NODE_ENV, JWT_SECRET } = process.env;
             // создать JWT
             const jwt = jsonWebToken.sign({
               _id: user._id,
-            }, process.env.JWT_SECRET);
+            },
+            // process.env.JWT_SECRET);
+            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'
+            );
             // переменная окружения хранит секретое слово для создания куки
             // прикрепить его к куке
             res.cookie('jwt', jwt, {
