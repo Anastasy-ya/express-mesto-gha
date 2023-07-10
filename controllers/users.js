@@ -7,7 +7,7 @@ const ConflictError = require('../errors/ConflictError');
 const JsonWebTokenError = require('../errors/JsonWebTokenError');
 const ValidationError = require('../errors/ValidationError');
 const Forbidden = require('../errors/Forbidden');
-// const NotFound = require('../errors/NotFound');
+const NotFound = require('../errors/NotFound');
 
 const createUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -84,9 +84,9 @@ const getUserById = (req, res, next) => { // *
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-          message: 'User ID is not found',
-        });
+        // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+        //   message: 'User ID is not found',
+        throw new NotFound('User ID is not found'),
       } if (err.name === 'CastError') {
         return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
