@@ -5,10 +5,15 @@ const {
   changeProfileData,
   changeProfileAvatar,
 } = require('../controllers/users');
+const {
+  getUserByIdValidation,
+  changeProfileDataValidation,
+  changeProfileAvatarValidation,
+} = require('../middlewares/validation');
 
 router.get('/', getUsers);
-router.get('/:id', getUserById);
-router.patch('/me', changeProfileData);
-router.patch('/me/avatar', changeProfileAvatar);
+router.get('/:id', getUserByIdValidation, getUserById);
+router.patch('/me', changeProfileDataValidation, changeProfileData);
+router.patch('/me/avatar', changeProfileAvatarValidation, changeProfileAvatar);
 
 module.exports = router;
