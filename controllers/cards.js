@@ -7,8 +7,7 @@ const NotFound = require('../errors/NotFound');
 // const JsonWebTokenError = require('../errors/JsonWebTokenError');
 const Forbidden = require('../errors/Forbidden');
 
-const getCards = (req, res, next) => { // *
-  // console.log(http2);
+const getCards = (req, res, next) => {
   Card.find({})
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch(next);
@@ -19,12 +18,15 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(http2.HTTP_STATUS_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
-          message: 'One of the fields or more is not filled correctly',
-          err: err.message,
-          stack: err.stack,
-        });
-      } return next(err);
+        // console.log(http2.HTTP_STATUS_BAD_REQUEST);
+        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({
+        //   message: 'One of the fields or more is not filled correctly',
+        //   err: err.message,
+        //   stack: err.stack,
+        // });
+        return next(new ValidationError('Invalid user ID'));
+      }
+      return next(err);
     });
 };
 
@@ -40,7 +42,7 @@ const deleteCardById = (req, res, next) => {
     .then(() => res.send({ message: 'Card removed' }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new ValidationError('Invalid user ID'));
+        return next(new ValidationError('Invalid card ID'));
         // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
       return next(err);
@@ -52,15 +54,17 @@ const addLike = (req, res, next) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user.id } },
   { new: true },
 )
-  .orFail(() => new Error('Not found'))
+  .orFail(() => new NotFound('Card ID is not found'))
   .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
   .catch((err) => {
-    if (err.message === 'Not found') {
-      return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-        message: 'Card is not found',
-      });
-    } if (err.name === 'CastError') {
-      return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
+    // if (err.message === 'Not found') {
+    //   return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+    //     message: 'Card is not found',
+    //   });
+    // }
+    if (err.name === 'CastError') {
+      return next(new ValidationError('Invalid user ID'));
+      // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       // return;
     } return next(err);
   });
