@@ -21,7 +21,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 // CORS
 app.use(cors({
-  origin: ['http://localhost: 3000'], // потом заменить адрес на постоянный
+  origin: ['*'], // потом заменить адрес на постоянный
   credentials: true, // разрешить куки
   methods: ['GET', 'PUT', 'POST', 'PATCH', 'DEL'],
 }));
@@ -36,7 +36,7 @@ app.use(cookieParser());
 app.use(routes);
 
 app.use(errors());
-
+// console.log(app.use(errors()));
 app.use(errorHandler); // централизованный обработчик ошибок
 
 app.listen(PORT, () => {

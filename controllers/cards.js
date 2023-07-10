@@ -29,8 +29,8 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCardById = (req, res, next) => {
-  console.log('req.params.id', req.params.id);
-  Card.findById(req.params.id)
+  // console.log('req.params.id', req.params.id);
+  Card.findById(Number(req.params.id))
     .orFail(new NotFound('Card is not found')) // не работает
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {

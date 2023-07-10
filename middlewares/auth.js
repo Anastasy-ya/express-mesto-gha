@@ -16,13 +16,14 @@ const auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'); // NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'
-    req.user = payload;
-    return req.user;
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+    // NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'
+    // return; // не должен возвращать токен
   } catch (err) {
-    return next(new JsonWebTokenError('Unauthorized!'));
+    next(new JsonWebTokenError('Unauthorized!')); //!
   }
-  // next(err);
+  req.user = payload;
+  next();
 };
 
 module.exports = auth;

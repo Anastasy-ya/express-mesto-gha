@@ -22,7 +22,7 @@ const signinValidation = celebrate({
 
 const getUserByIdValidation = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24).hex().required(),
+    _id: Joi.string().length(24).hex().required(),
   }),
 });
 
@@ -48,7 +48,7 @@ const createCardValidation = celebrate({
 
 const CardIdValidation = celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().length(24).hex().required(), //
+    id: Joi.string().length(24).hex(), // .required()
   }),
 });
 

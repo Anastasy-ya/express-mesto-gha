@@ -54,7 +54,7 @@ const login = (req, res, next) => {
             // создать JWT
             const jwt = jsonWebToken.sign(
               {
-                _id: user._id,
+                id: user._id,
               },
               // process.env.JWT_SECRET);
               NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
@@ -78,8 +78,8 @@ const login = (req, res, next) => {
 };
 
 const getUserData = (req, res, next) => { // users/me
-  console.log(req.user);
-  User.findById(req.user.id)
+  // console.log(req.user);
+  User.findById(req.user._id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
@@ -100,7 +100,7 @@ const getUserData = (req, res, next) => { // users/me
 const getUsers = (req, res, next) => { // users
   User.find({})
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
-    .catch(next); // next
+    .catch(next);
 };
 
 const getUserById = (req, res, next) => { // users/:id
@@ -114,7 +114,7 @@ const getUserById = (req, res, next) => { // users/:id
         // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
         //   message: 'User ID is not found',
         // });
-        throw new NotFound('User ID is not found');
+        throw next(new NotFound('User ID is not found'));
       } if (err.name === 'CastError') {
         return next(new ValidationError('Invalid user ID'));
         // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
