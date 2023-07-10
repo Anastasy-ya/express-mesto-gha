@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const http2 = require('http2').constants;
-// const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const {
   createUser,
   login,

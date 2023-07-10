@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
-// const { errors } = require('celebrate');
+const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env; // переменная для порта
@@ -29,19 +29,13 @@ app.use(cors({
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); // создает наполнение req.body
+
 app.use(cookieParser());
 
-// app.use((req, res, next) => { // захардкодить id нового юзера
-//   req.user = {
-//     _id: '64a52b1d2abb086865dcb54d',
-//   };
-
-//   next();
-// });
-
 app.use(routes);
-// console.log(getData.getUserData);
-// app.get('/users/me', getData.getUserData);
+
+app.use(errors());
+
 app.use(errorHandler); // централизованный обработчик ошибок
 
 app.listen(PORT, () => {
