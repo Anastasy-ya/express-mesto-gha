@@ -86,9 +86,11 @@ const getUserById = (req, res, next) => { // *
       if (err.message === 'Not found') {
         // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
         //   message: 'User ID is not found',
-        throw new NotFound('User ID is not found'),
+        // });
+        throw new NotFound('User ID is not found');
       } if (err.name === 'CastError') {
-        return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
+        return next(new ValidationError('Invalid user ID'));
+        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
       }
       return next(err);
     });
