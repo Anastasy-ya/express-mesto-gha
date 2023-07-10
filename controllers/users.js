@@ -77,13 +77,33 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-const getUsers = (req, res, next) => { // *
-  User.find({})
+const getUserData = (req, res, next) => { // users/me
+  console.log(req.user);
+  User.findById(req.user.id)
+    .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
+    // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
-    .catch((err) => console.log(err)); // next
+    .catch((err) => {
+      if (err.message === 'Not found') {
+        // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+        //   message: 'User ID is not found',
+        // });
+        throw new NotFound('User ID is not found');
+      } if (err.name === 'CastError') {
+        return next(new ValidationError('Invalid user ID'));
+        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
+      }
+      return next(err);
+    });
 };
 
-const getUserById = (req, res, next) => { // *
+const getUsers = (req, res, next) => { // users
+  User.find({})
+    .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
+    .catch(next); // next
+};
+
+const getUserById = (req, res, next) => { // users/:id
   // console.log(req.params.id);
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
@@ -176,4 +196,5 @@ module.exports = {
   changeProfileData,
   changeProfileAvatar,
   login,
+  getUserData,
 };
