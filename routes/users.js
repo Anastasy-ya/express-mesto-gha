@@ -3,6 +3,7 @@ const router = require('express').Router();
 const {
   getUsers,
   getUserById,
+  getUserData,
   changeProfileData,
   changeProfileAvatar,
 } = require('../controllers/users');
@@ -14,7 +15,7 @@ const {
 
 router.get('/', getUsers);
 router.get('/:id', getUserByIdValidation, getUserById);
-router.get('/me', getUserByIdValidation, getUserById);
+router.get('/me', getUserData);
 router.patch('/me', changeProfileDataValidation, changeProfileData);
 router.patch('/me/avatar', changeProfileAvatarValidation, changeProfileAvatar);
 
