@@ -73,15 +73,18 @@ const removeLike = (req, res, next) => {
       new: true,
     },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFound('Card ID is not found'))
     .then((card) => res.status(http2.HTTP_STATUS_OK).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
-          message: 'Card is not found',
-        });
-      } if (err.name === 'CastError') {
-        return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid user ID' });
+      // if (err.message === 'Not found') {
+      //   // return res.status(http2.HTTP_STATUS_NOT_FOUND).send({
+      //   //   message: 'Card is not found',
+      //   // });
+      //   throw next(new NotFound('Card ID is not found'));
+      // }
+      if (err.name === 'CastError') {
+        // return res.status(http2.HTTP_STATUS_BAD_REQUEST).send({ message: 'Invalid card ID' });
+        return next(new ValidationError('Invalid card ID'));
       } return next(err);
     });
 };
