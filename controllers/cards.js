@@ -15,7 +15,7 @@ const getCards = (req, res, next) => { // *
 };
 
 const createCard = (req, res, next) => {
-  Card.create({ ...req.body, owner: req.user._id })
+  Card.create({ ...req.body, owner: req.user.id })
     .then((card) => res.status(http2.HTTP_STATUS_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {

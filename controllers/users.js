@@ -78,8 +78,8 @@ const login = (req, res, next) => {
 };
 
 const getUserData = (req, res, next) => { // users/me
-  // console.log(req.user);
-  User.findById(req.user._id)
+  console.log(req.user);
+  User.findById(req.user.id)
     .orFail(() => new Error('Not found'))// если возвращен пустой объект, создать ошибку
     // и потом выполнение кода перейдет в catch, где ошибка будет обработана
     .then((user) => res.status(http2.HTTP_STATUS_OK).send(user))
@@ -125,7 +125,7 @@ const getUserById = (req, res, next) => { // users/:id
 
 const changeProfileData = (req, res, next) => { // *
   User.findByIdAndUpdate(
-    req.user._id,
+    req.user.id,
     {
       name: req.body.name,
       about: req.body.about,
@@ -162,7 +162,7 @@ const changeProfileData = (req, res, next) => { // *
 
 const changeProfileAvatar = (req, res, next) => { // *
   User.findByIdAndUpdate(
-    req.user._id,
+    req.user.id,
     {
       avatar: req.body.avatar,
     },
