@@ -15,7 +15,7 @@ const errorHandler = require('./middlewares/error');
 // const getData = require('./controllers/users');
 
 // подключение к серверу монго
-mongoose.connect(process.env['db.Link'], {
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
 
