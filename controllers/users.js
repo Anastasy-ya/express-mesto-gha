@@ -25,7 +25,6 @@ const createUser = (req, res, next) => {
       })
         .then((user) => res.status(http2.HTTP_STATUS_CREATED).send(user))
         .catch((err) => {
-          console.log(err);
           if (err.code === 11000) {
             return next(new ConflictError('User already exists')); // 409
           }
@@ -76,7 +75,6 @@ const login = (req, res, next) => {
 };
 
 const getUserData = (req, res, next) => { // users/me
-  console.log(req.user);
   User.findById(req.user.id)
     .orFail(() => new NotFound('User ID is not found'))
     // если возвращен пустой объект, создать ошибку

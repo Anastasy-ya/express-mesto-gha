@@ -55,7 +55,7 @@ app.use(cookieParser());
 app.use(routes);
 
 app.use(errors());
-// console.log(app.use(errors()));
+
 app.use(errorHandler); // централизованный обработчик ошибок
 
 app.listen(PORT, () => {
