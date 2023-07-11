@@ -1,24 +1,31 @@
 /* eslint-disable no-console */
 require('dotenv').config();
+
 const express = require('express');
+
 const helmet = require('helmet');
+
 const rateLimit = require('express-rate-limit');
+
 const { errors } = require('celebrate');
+
 const mongoose = require('mongoose');
 
-// const { PORT = 3000 } = process.env; // переменная для порта
 const app = express(); // process.env.JWT_SECRET, process.env.NODE_ENV
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // за 15 мин
   max: 100, // максимум 100 обращений
 });
+
 const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser'); // был заменен на express.json
 // создает наполнение req.body
 const cors = require('cors');
+
 const routes = require('./routes/index');
+
 const errorHandler = require('./middlewares/error');
-// const getData = require('./controllers/users');
+
 const { DB_URL = 'mongodb://127.0.0.1:27017/mestodb', PORT = 3000 } = process.env;
 
 // подключение к серверу монго
