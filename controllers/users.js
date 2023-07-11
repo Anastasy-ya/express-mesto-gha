@@ -6,7 +6,7 @@ const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError');
 const JsonWebTokenError = require('../errors/JsonWebTokenError');
 const ValidationError = require('../errors/ValidationError');
-const Forbidden = require('../errors/Forbidden');
+// const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -69,7 +69,7 @@ const login = (req, res, next) => {
             return res.send({ data: user.toJSON() });
           }
           // Если не совпадает - вернуть ошибку
-          return next(new Forbidden('Invalid email or password')); // 403 Неправильный пароль
+          return next(new JsonWebTokenError('Invalid email or password')); // 403 Неправильный пароль Forbidden заменен 401
         });
     })
     .catch(next);

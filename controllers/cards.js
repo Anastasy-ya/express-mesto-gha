@@ -29,7 +29,7 @@ const deleteCardById = (req, res, next) => {
       if (card.owner.toString() !== req.user.id) {
         throw new Forbidden('Access is denied');
       }
-      return Card.findByIdAndRemove(req.params.id);
+      return Card.deleteOne(card);
     })
     .then(() => res.send({ message: 'Card removed' }))
     .catch((err) => {

@@ -1,11 +1,17 @@
 /* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 
-const { PORT = 3000 } = process.env; // переменная для порта
+// const { PORT = 3000 } = process.env; // переменная для порта
 const app = express(); // process.env.JWT_SECRET, process.env.NODE_ENV
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // за 15 мин
+  max: 100, // максимум 100 обращений
+});
 const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser'); // был заменен на express.json
 // создает наполнение req.body
@@ -13,9 +19,10 @@ const cors = require('cors');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/error');
 // const getData = require('./controllers/users');
+const { DB_URL, PORT } = process.env;
 
 // подключение к серверу монго
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect(DB_URL, {
   useNewUrlParser: true,
 });
 
@@ -30,6 +37,11 @@ app.use(cors({
 // app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.json()); // создает наполнение req.body
+
+app.use(helmet()); // набор middleware функций для express,
+// который помогает защитить приложение от уязвимостей и кибератак
+
+app.use(limiter);
 
 app.use(cookieParser());
 
