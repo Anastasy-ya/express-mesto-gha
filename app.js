@@ -19,7 +19,7 @@ const cors = require('cors');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/error');
 // const getData = require('./controllers/users');
-const { DB_URL, PORT } = process.env;
+const { DB_URL = 'mongodb://127.0.0.1:27017/mestodb', PORT = 3000 } = process.env;
 
 // подключение к серверу монго
 mongoose.connect(DB_URL, {
